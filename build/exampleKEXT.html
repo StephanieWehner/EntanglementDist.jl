@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Using the method of k extensions · Entanglement Distillation</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="../versions.js"></script></head><body><nav class="toc"><h1>Entanglement Distillation</h1><form class="search" action="search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href="exampleKEXT.html">Using the method of k extensions</a><ul class="internal"></ul></li><li><a class="toctext" href="examplePPT.html">Using the PPT Relaxation method</a></li><li><a class="toctext" href="exampleSeesaw.html">Using the seesaw method</a></li><li><a class="toctext" href="index.html">Optimizing Entanglement Distillation</a></li><li><a class="toctext" href="intro.html">Introduction</a></li><li><a class="toctext" href="optimize.html">Tools for optimizing distillation</a></li><li><a class="toctext" href="quantum.html">Tools for creating and manipulating quantum states</a></li><li><a class="toctext" href="schemes.html">Known distillation/filtering schemes</a></li><li><a class="toctext" href="states.html">Special quantum states</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="exampleKEXT.html">Using the method of k extensions</a></li></ul></nav><hr/></header><h1><a class="nav-anchor" id="Using-the-method-of-k-extensions-1" href="#Using-the-method-of-k-extensions-1">Using the method of k extensions</a></h1><p>This example is almost identical to the one of PPT relaxations, except that we will use instead the method of symmetric extensions to try and get a sharper bound. In the example below, we will allow one extra extension.</p><p>Let us first define a state to be distilled. In this example, let&#39;s consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).</p><pre><code class="language-julia">
+rho = wernerState(0.9);
+</code></pre><p>Let&#39;s now go and compute the maximum fidelity of distillting a few of these Werner states.</p><pre><code class="language-julia">
+# Local dimension of what we&#39;ll call Alice in the input state rho
+nA = 2;
+
+# Similarly for Bob
+nB = 2;
+
+# Number of copies to distill
+n = 3;
+
+# Dimension of the maximally entangled state with want to produce
+k = 2;
+
+# Desired probability of success
+delta = 0.8;
+
+# Compute the maximum fidelity F
+(problem, F, psucc) = pptRelax1ExtCopies(rho, n, nA, nB, k, delta); </code></pre><footer><hr/><a class="next" href="examplePPT.html"><span class="direction">Next</span><span class="title">Using the PPT Relaxation method</span></a></footer></article></body></html>
