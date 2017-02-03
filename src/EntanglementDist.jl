@@ -8,7 +8,7 @@ include("permutesystems.jl")
 include("sortAB.jl")
 include("copies.jl")
 include("entFidelity.jl")
-include("kron.jl")
+# include("kron.jl")
 include("random.jl")
 include("protocols.jl");
 include("paramProtocols.jl");

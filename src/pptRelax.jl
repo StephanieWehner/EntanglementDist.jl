@@ -91,7 +91,7 @@ function pptRelax(rho::AbstractArray, nA::Int, nB::Int, k::Int, delta::Number; v
 	# Constraint coming from the success probability
 	problem.constraints += nA * nB * trace(rho.'*(D+E)) == delta;
 
-	solve!(problem, SCSSolver(verbose = verbose, eps = eps, max_iters = max_iters));
+	solve!(problem, SCSSolver(verbose = verbose, eps = eps, max_iters = max_iters),verbose=verbose);
 	p_succ = nA * nB * trace(rho.'*(D.value + E.value));
 	F = problem.optval / p_succ;
 
