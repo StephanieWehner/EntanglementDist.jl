@@ -62,7 +62,9 @@ function pptRelax1Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	if(real(rho) == rho)
   		W_A1A2B = Semidefinite(k^3 * nA^2 * nB);
 	else
-		W_A1A2B = HermitianSemidefinite(k^3 * nA^2 * nB);
+		# HermitianSemidefinite is buggy to make a matrix
+		ms = k^3 * nA^2 * nB;
+		W_A1A2B = ComplexVariable(ms,ms);
 	end
 
   	# Output state to be distilled
@@ -80,7 +82,10 @@ function pptRelax1Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
   	W_A2B = partialtrace(W_A1A2B, [1, 2], dims)
 
   	# define the objective
-  	problem = maximize(nA * nB * trace(permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B))
+	tv = Variable(1);
+  	problem = maximize(tv);
+	problem.constraints += tv == nA * nB * trace(permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B);
+	problem.constraints += W_A1A2B in :SDP;
 
     # define constraints
   	problem.constraints += [
@@ -180,7 +185,8 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	if(real(rho) == rho)
   		W_total = Semidefinite(k^4 * nA^3 * nB);;
 	else
-  		W_total= HermitianSemidefinite(k^4 * nA^3 * nB);
+		ms = k^4 * nA^3 * nB;
+  		W_total= ComplexVariable(ms,ms);
 	end
 	
 
@@ -203,7 +209,10 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
   	W_A3B = partialtrace(W_total, [1, 2, 3, 4], dims);
 
   	# define the objective
-  	problem = maximize(nA * nB * trace(permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B));
+	tv = Variable(1);
+  	problem = maximize(tv);
+	problem.constraints += tv == nA * nB * trace(permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B);
+	problem.constraints += W_total in :SDP;
 
   	# define constraints
   	problem.constraints += [
@@ -307,7 +316,7 @@ function pptRelax1ExtSym(rho::AbstractMatrix, nA::Number, nB::Number, k::Number,
   if(real(rho) == rho)
       Ws = Semidefinite(dimSym);
   else
-      Ws= HermitianSemidefinite(dimSym);
+      Ws= ComplexVariable(dimSym);
   end
 
   #Since we extend in the symmetric part, the antisymmetric part is zero
@@ -339,6 +348,7 @@ function pptRelax1ExtSym(rho::AbstractMatrix, nA::Number, nB::Number, k::Number,
   # define the objective
   X =  Pcb' * nA * nB * kron( eye(k * nA), permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) ) * Pcb
   problem = maximize(trace(X[1:dimSym, 1:dimSym] * Ws))
+  problem.constraints += Ws in :SDP;
 
   #Define probability of success
   Y = Pcb' * nA * nB * kron( eye(k * nA), permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) ) * Pcb
