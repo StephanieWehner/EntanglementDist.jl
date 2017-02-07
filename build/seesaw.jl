@@ -163,7 +163,7 @@ function seesawAlice(
 	if (real(rho) == rho) && (real(CB) == CB)
 		CA = Semidefinite(d);
 	else
-		CA = HermitianSemidefinite(d);
+		CA = ComplexVariable(d,d);
 	end
 
 	# Dimensions in ordering hatA, Fa, A,...
@@ -172,7 +172,10 @@ function seesawAlice(
 	# Set up the optimization problem
 	# The current probability of success
         Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dim=dimSys);	
-	problem = maximize(nA * nB * trace(Mwant * kron(CA, CB)));
+	tv = Variable(1);
+	problem = maximize(tv);
+	problem.constraints += tv == nA * nB * trace(Mwant * kron(CA, CB));
+	problem.constraints += CA in :SDP;
 
 	# Constraints
 	# CA should be a choi state 	
@@ -236,7 +239,7 @@ function seesawBob(
 	if (real(rho) == rho) && (real(CA) == CA)
 		CB = Semidefinite(d);
 	else
-		CB = HermitianSemidefinite(d);
+		CB = ComplexVariable(d,d);
 	end
 
 	# Dimensions in ordering hatA, Fa, A,...
@@ -245,7 +248,10 @@ function seesawBob(
 	# Set up the optimization problem
 	# The current probability of success
         Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dim=dimSys);	
-	problem = maximize(nA * nB * trace(Mwant * kron(CA, CB)));
+	tv = Variable(1);
+	problem = maximize(tv);
+	problem.constraints += tv == nA * nB * trace(Mwant * kron(CA, CB));
+	problem.constraints += CB in :SDP;
 
 	# Constraints
 	# CA should be a choi state 	

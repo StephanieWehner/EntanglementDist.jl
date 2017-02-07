@@ -1,54 +1,6 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "exampleKEXT.html#",
-    "page": "Using the method of k extensions",
-    "title": "Using the method of k extensions",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "exampleKEXT.html#Using-the-method-of-k-extensions-1",
-    "page": "Using the method of k extensions",
-    "title": "Using the method of k extensions",
-    "category": "section",
-    "text": "This example is almost identical to the one of PPT relaxations, except that we will use instead the method of symmetric extensions to try and get a sharper bound. In the example below, we will allow one extra extension.Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).\nrho = wernerState(0.9);\nLet's now go and compute the maximum fidelity of distillting a few of these Werner states.\n# Local dimension of what we'll call Alice in the input state rho\nnA = 2;\n\n# Similarly for Bob\nnB = 2;\n\n# Number of copies to distill\nn = 3;\n\n# Dimension of the maximally entangled state with want to produce\nk = 2;\n\n# Desired probability of success\ndelta = 0.8;\n\n# Compute the maximum fidelity F\n(problem, F, psucc) = pptRelax1ExtCopies(rho, n, nA, nB, k, delta); "
-},
-
-{
-    "location": "examplePPT.html#",
-    "page": "Using the PPT Relaxation method",
-    "title": "Using the PPT Relaxation method",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "examplePPT.html#Using-the-PPT-Relaxation-method-1",
-    "page": "Using the PPT Relaxation method",
-    "title": "Using the PPT Relaxation method",
-    "category": "section",
-    "text": "Let us now see how we can use the method of PPT relaxations to compute an upper bound on the maximum achievable fidelity of any entanglement distillation scheme using realistic operations.Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).\nrho = wernerState(0.9);\nLet's now go and compute the maximum fidelity of distillting a few of these Werner states.\n# Local dimension of what we'll call Alice in the input state rho\nnA = 2;\n\n# Similarly for Bob\nnB = 2;\n\n# Number of copies to distill\nn = 3;\n\n# Dimension of the maximally entangled state with want to produce\nk = 2;\n\n# Desired probability of success\ndelta = 0.8;\n\n# Compute the maximum fidelity F\n(problem, F, psucc) = pptRelaxCopies(rho, n, nA, nB, k, delta); "
-},
-
-{
-    "location": "exampleSeesaw.html#",
-    "page": "Using the seesaw method",
-    "title": "Using the seesaw method",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "exampleSeesaw.html#Using-the-seesaw-method-1",
-    "page": "Using the seesaw method",
-    "title": "Using the seesaw method",
-    "category": "section",
-    "text": "Remember from arXiv:... that the seesaw method attempts to find a better entanglement distillation scheme for a given state, starting with an existing protocol. Below, we will apply this method to improve a simple filtering scheme that takes one 2x2 quantum state, and returns another 2x2 quantum state with higher fidelity to the EPR pair - at least with some probability of success. To use the seesaw method, the existing entanglement distillation scheme must be supplied in terms of the relevant choi states for Alice and Bob. The scheme is therby formulated as a map that takes Alice's system A to an output hat A and a flag register F_A, and similarly for Bob. A projector P must be supplied which is applied to the flag register that Alice and Bob will use to decide success. For example, P=|11><11| would correspond to a protocol in which Alice and Bob declare success if each of them locally declared success corresponding to a flag of 1. \n# Epsilon parameter for the filtering protocol (see arXiv paper)\neps = 0.2;\n\n# Let's generate a test state to filter\np = 0.7\nrho = p * maxEnt(2) + (1-p) * eVec(4,1)*eVec(4,1)';\n\n# Output initial fidelity\nFinit = entFidelity(rho);\nprint(\"Initial fidelity is F=\", round(Finit,3), \"\\n\");\n\n# Test the seesaw optimization for the filtering scheme\n# Adapted to work well for states of the form p EPR + (1-p) |01><01|\nprint(\"Testing the seesaw method\\n\");\nprint(\"Epsilon is set to \", eps, \"\\n\");\n\n# To use the seesaw method we will need choi states of the existing distillation protocol\nprint(\"Computing Choi states\\n\");\n(CA,CB) = filteringMakeChoi(eps);\nprint(\"Compute the filtering performance without Choi state to double check:\\n\");\n(rhoQC, P, Fwo, pwo) = filtering(rho, eps);\nprint(\"Checked F=\",round(Fwo,3), \" and psucc=\",round(pwo,3),\"\\n\");\n\n# We now run the seesaw optimization. \n# If no success probability is given, then we try to improve the \n# fidelity without hurting the success probability.\nprint(\"Run the SEESAW Optimization\\n\");\n(newCA, newCB, Fnew, pnew) = seesaw(rho,2,2,2,CA, CB, P);"
-},
-
-{
     "location": "index.html#",
     "page": "Optimizing Entanglement Distillation",
     "title": "Optimizing Entanglement Distillation",
@@ -149,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for optimizing distillation",
     "title": "EntanglementDist.pptRelax1Ext",
     "category": "Function",
-    "text": "(problem, F, psucc) = pptRelax1Ext(rhoAB, n, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 1 extension for distillable entanglement with an allowed failure probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nn number of qubits on one side, assuming dimensions nA=nB =2^n in the input.\nk local dimension of the maximally entangled output state\ndelta maximum allowed failure probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n(problem, F, psucc) = pptRelax1Ext(rhoAB, nA, nB, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 1 extension for distillable entanglement with an allowed failure probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nnA  dimension of the A system\nnB  dimension of the B system\nk   local dimension of the maximally entangled output state\ndelta maximum allowed failure probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n"
+    "text": "(problem, F, psucc) = pptRelax1Ext(rhoAB, n, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 1 symmetric extension for distillable entanglement with fixed desired success probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nn number of qubits on one side, assuming dimensions nA=nB =2^n in the input.\nk local dimension of the maximally entangled output state\ndelta desired success probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n(problem, F, psucc) = pptRelax1Ext(rhoAB, nA, nB, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 1 symmetric extension for distillable entanglement with fixed desired success probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nnA  dimension of the A system\nnB  dimension of the B system\nk   local dimension of the maximally entangled output state\ndelta desired success probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n"
 },
 
 {
@@ -165,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for optimizing distillation",
     "title": "EntanglementDist.pptRelax2Ext",
     "category": "Function",
-    "text": "(problem, F, psucc) = pptRelax2Ext(rhoAB, n, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 2 extensions for distillable entanglement with an allowed failure probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nn number of qubits on one side, assuming dimensions nA=nB =2^n in the input.\nk local dimension of the maximally entangled output state\ndelta maximum allowed failure probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n(problem, F, psucc) = pptRelax2Ext(rhoAB, nA, nB, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 1 symmetric extension for distillable entanglement with an allowed failure probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nnA  dimension of the A system\nnB  dimension of the B system\nk   local dimension of the maximally entangled output state\ndelta maximum allowed failure probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n"
+    "text": "(problem, F, psucc) = pptRelax2Ext(rhoAB, n, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 2 extensions for distillable entanglement with fixed desired success probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nn number of qubits on one side, assuming dimensions nA=nB =2^n in the input.\nk local dimension of the maximally entangled output state\ndelta desired success probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n(problem, F, psucc) = pptRelax2Ext(rhoAB, nA, nB, k, delta, verbose=true/false, eps=1e^-4)\n\nImplements the PPT relaxation plus 2 extensions for distillable entanglement with fixed desired success probability.\n\nInputs:\n\nrhoAB quantum state to be distilled\nnA  dimension of the A system\nnB  dimension of the B system\nk   local dimension of the maximally entangled output state\ndelta desired success probability\n\nOutputs:\n\nproblem problem object given by Convex,\nF fidelity bound\npsucc success probability actually attained (should equal delta up to numerical imprecisions)\n\n\n\n"
 },
 
 {
@@ -245,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for creating and manipulating quantum states",
     "title": "EntanglementDist.maxEntVec",
     "category": "Function",
-    "text": "vec = maxEntVec(d)\n\nReturns a the maximally entangled state of a given dimension d as a vector.\n\n\n\n"
+    "text": "vec = maxEntVec(d)\n\nReturns the maximally entangled state of a given dimension d as a vector.\n\n\n\n"
 },
 
 {
@@ -381,7 +333,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Special quantum states",
     "title": "EntanglementDist.wernerState",
     "category": "Function",
-    "text": "rho = wernerState(p) or rho = wernerState(p,d)\n\nReturns a werner state, i.e., a mixture of a maximally entangled pair (with probability p) and the maximally mixed state in local dimension d. If no argument d is given the default is d=2, that is, we take the mixture of the EPR pair with the maximally entangled state.\n\n\n\n"
+    "text": "rho = wernerState(p) or rho = wernerState(p,d)\n\nReturns a werner state, i.e., a mixture of a maximally entangled pair (with probability p) and the maximally mixed state in local dimension d. If no argument d is given the default is d=2, that is, we take the mixture of the EPR pair with the maximally mixed state of local dimension 2.\n\n\n\n"
+},
+
+{
+    "location": "states.html#EntanglementDist.bellDiagState",
+    "page": "Special quantum states",
+    "title": "EntanglementDist.bellDiagState",
+    "category": "Function",
+    "text": "rho = bellDiagState(p1,p2,p3)\n\nReturns a bell diagonal state that is a mixture between the 4 Bell states: p1 * phi^+ + p2 * psi^+ + p3 * phi^- + (1 - p1 - p2 - p3) * psi^-.\n\n\n\n"
+},
+
+{
+    "location": "states.html#EntanglementDist.sState",
+    "page": "Special quantum states",
+    "title": "EntanglementDist.sState",
+    "category": "Function",
+    "text": "rho = sState(p)\n\nReturns a state that is an a mixture between the EPR pair (with probability p), and the state |11><11|.\n\n\n\n"
 },
 
 {
@@ -393,9 +361,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "states.html#EntanglementDist.rStateQutrit",
+    "location": "states.html#EntanglementDist.sStateQutrit",
     "page": "Special quantum states",
-    "title": "EntanglementDist.rStateQutrit",
+    "title": "EntanglementDist.sStateQutrit",
     "category": "Function",
     "text": "rho = rStateQutrit(p)\n\nReturns a state that is a mixture between a 3 dimensional maximally entangled state (with probability p) and the state |00><00|\n\n\n\n"
 },
@@ -405,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Special quantum states",
     "title": "EntanglementDist.rStatePhase",
     "category": "Function",
-    "text": "rho = rStatePhase(p, phi) or rho = rStatePhase(p)\n\nReturns a mixture between a state proportional to |01> + e^(i phi) |10> (with probability p) and the state |00><00|. No value for phi defaults to phi=0.\n\n\n\n"
+    "text": "rho = rStatePhase(p, phi) or rho = rStatePhase(p)\n\nReturns a mixture between a state proportional to |01> + e^(i phi) |10> (with probability p) and the state |11><11|. No value for phi defaults to phi=0.\n\n\n\n"
 },
 
 {
@@ -413,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Special quantum states",
     "title": "EntanglementDist.rStateCorrPhase",
     "category": "Function",
-    "text": "rho = rStateCorrPhase(p)\n\nReturns a state of the form integral phi r(p,phi) tensor r(p,phi), where  r(p,phi) = rStatePhase(p,phi).\n\n\n\n"
+    "text": "rho = rStateCorrPhase(p, pd)\n\nReturns a state of the form integral phi [pd * r(p,phi) + (1-pd) * r(p,phi+pi)] tensor r(p,phi), where  r(p,phi) = rStatePhase(p,phi). Default for pd is 1.\n\n\n\n"
 },
 
 {
@@ -421,7 +389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Special quantum states",
     "title": "EntanglementDist.rStateCorrPhaseCopies",
     "category": "Function",
-    "text": "rho = rStateCorrPhase(p)\n\nReturns a state of the form integral phi r(p,phi)^(tensor n) , where  r(p,phi) = rStatePhase(p,phi) and n is the number of desired copies.\n\n\n\n"
+    "text": "rho = rStateCorrPhaseCopies(p)\n\nReturns a state of the form integral phi r(p,phi)^(tensor n) , where  r(p,phi) = rStatePhase(p,phi) and n is the number of desired copies.\n\n\n\n"
 },
 
 {
@@ -429,7 +397,55 @@ var documenterSearchIndex = {"docs": [
     "page": "Special quantum states",
     "title": "Special quantum states",
     "category": "section",
-    "text": "The following functions generate specific sets of quantum states which commonly occur either in physical implemtations or in mathematical studies of entanglement distillation.wernerState\nrState\nrStateQutrit\nrStatePhase\nrStateCorrPhase\nrStateCorrPhaseCopies"
+    "text": "The following functions generate specific sets of quantum states which commonly occur either in physical implemtations or in mathematical studies of entanglement distillation.wernerState\nbellDiagState\nsState\nrState\nsStateQutrit\nrStatePhase\nrStateCorrPhase\nrStateCorrPhaseCopies"
+},
+
+{
+    "location": "examplePPT.html#",
+    "page": "Using the PPT Relaxation method",
+    "title": "Using the PPT Relaxation method",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "examplePPT.html#Using-the-PPT-Relaxation-method-1",
+    "page": "Using the PPT Relaxation method",
+    "title": "Using the PPT Relaxation method",
+    "category": "section",
+    "text": "Let us now see how we can use the method of PPT relaxations to compute an upper bound on the maximum achievable fidelity of any entanglement distillation scheme using realistic operations.Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).\nrho = wernerState(0.9);\nLet's now go and compute the maximum fidelity of distillting a few of these Werner states.\n# Local dimension of what we'll call Alice in the input state rho\nnA = 2;\n\n# Similarly for Bob\nnB = 2;\n\n# Number of copies to distill\nn = 3;\n\n# Dimension of the maximally entangled state with want to produce\nk = 2;\n\n# Desired probability of success\ndelta = 0.8;\n\n# Compute the maximum fidelity F\n(problem, F, psucc) = pptRelaxCopies(rho, n, nA, nB, k, delta); "
+},
+
+{
+    "location": "exampleKEXT.html#",
+    "page": "Using the method of k extensions",
+    "title": "Using the method of k extensions",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "exampleKEXT.html#Using-the-method-of-k-extensions-1",
+    "page": "Using the method of k extensions",
+    "title": "Using the method of k extensions",
+    "category": "section",
+    "text": "This example is almost identical to the one of PPT relaxations, except that we will use instead the method of symmetric extensions to try and get a sharper bound. In the example below, we will allow one extra extension.Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).\nrho = wernerState(0.9);\nLet's now go and compute the maximum fidelity of distillting a few of these Werner states.\n# Local dimension of what we'll call Alice in the input state rho\nnA = 2;\n\n# Similarly for Bob\nnB = 2;\n\n# Number of copies to distill\nn = 3;\n\n# Dimension of the maximally entangled state with want to produce\nk = 2;\n\n# Desired probability of success\ndelta = 0.8;\n\n# Compute the maximum fidelity F\n(problem, F, psucc) = pptRelax1ExtCopies(rho, n, nA, nB, k, delta); "
+},
+
+{
+    "location": "exampleSeesaw.html#",
+    "page": "Using the seesaw method",
+    "title": "Using the seesaw method",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "exampleSeesaw.html#Using-the-seesaw-method-1",
+    "page": "Using the seesaw method",
+    "title": "Using the seesaw method",
+    "category": "section",
+    "text": "Remember from arXiv:... that the seesaw method attempts to find a better entanglement distillation scheme for a given state, starting with an existing protocol. Below, we will apply this method to improve a simple filtering scheme that takes one 2x2 quantum state, and returns another 2x2 quantum state with higher fidelity to the EPR pair - at least with some probability of success. To use the seesaw method, the existing entanglement distillation scheme must be supplied in terms of the relevant choi states for Alice and Bob. The scheme is therby formulated as a map that takes Alice's system A to an output hat A and a flag register F_A, and similarly for Bob. A projector P must be supplied which is applied to the flag register that Alice and Bob will use to decide success. For example, P=|11><11| would correspond to a protocol in which Alice and Bob declare success if each of them locally declared success corresponding to a flag of 1. \n# Epsilon parameter for the filtering protocol (see arXiv paper)\neps = 0.2;\n\n# Let's generate a test state to filter\np = 0.7\nrho = p * maxEnt(2) + (1-p) * eVec(4,1)*eVec(4,1)';\n\n# Output initial fidelity\nFinit = entFidelity(rho);\nprint(\"Initial fidelity is F=\", round(Finit,3), \"\\n\");\n\n# Test the seesaw optimization for the filtering scheme\n# Adapted to work well for states of the form p EPR + (1-p) |01><01|\nprint(\"Testing the seesaw method\\n\");\nprint(\"Epsilon is set to \", eps, \"\\n\");\n\n# To use the seesaw method we will need choi states of the existing distillation protocol\nprint(\"Computing Choi states\\n\");\n(CA,CB) = filteringMakeChoi(eps);\nprint(\"Compute the filtering performance without Choi state to double check:\\n\");\n(rhoQC, P, Fwo, pwo) = filtering(rho, eps);\nprint(\"Checked F=\",round(Fwo,3), \" and psucc=\",round(pwo,3),\"\\n\");\n\n# We now run the seesaw optimization. \n# If no success probability is given, then we try to improve the \n# fidelity without hurting the success probability.\nprint(\"Run the SEESAW Optimization\\n\");\n(newCA, newCB, Fnew, pnew) = seesaw(rho,2,2,2,CA, CB, P);"
 },
 
 ]}

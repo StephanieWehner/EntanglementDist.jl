@@ -1,6 +1,6 @@
 # Defines some commonly used states in quantum information
 
-export bell, wernerState, rState, rStateQutrit, rStatePhase, rStateCorrPhase, rStateCorrPhaseCopies;
+export bell, bellDiagState, wernerState, rState, sState, sStateQutrit, rStatePhase, rStateCorrPhase, rStateCorrPhaseCopies;
 
 """ `bell`
 
@@ -39,12 +39,55 @@ Projector onto the antisymmetric subspace of 2 qubits.
 """
 PA = bS4;
 
+""" `rho = bellDiagState(p1,p2,p3)`
+
+Returns a bell diagonal state that is a mixture between the 4 Bell states: p1 * phi^+ + p2 * psi^+ + p3 * phi^- + (1 - p1 - p2 - p3) * psi^-.
+"""
+
+function bellDiagState(p1::Number,p2::Number,p3::Number)
+
+	@assert 0 <= p1 "Probilities must be positive."
+	
+	@assert 0 <= p2 "Probilities must be positive."
+	
+	@assert 0 <= p3 "Probilities must be positive."
+	
+	@assert p1 + p2 + p3 <= 1 "Probabilities cannot exceed 1."
+
+	# Produce the desired mixture
+	out = p1 * bS1 + p2 * bS3 + p3 * bS2 + (1-p1-p2-p3) * bS4;
+	return out;
+end
+
+""" `rho = sState(p)`
+
+Returns a state that is an a mixture between the EPR pair (with probability *p*), and the state |11><11|.
+"""
+
+function sState(p::Number)
+
+	@assert 0 <= p "Probilities must be positive."
+	@assert p <= 1 "Probabilities cannot exceed 1."
+
+	# Generate the maximally entangled state
+	epr = maxEnt(2);
+
+	# Generate |11>
+	e0 = [1 0];
+	e1 = [0 1];
+	v11 = kron(e1,e1);
+
+	# Produce the desired mixture
+	out = p * epr + (1-p) * v11'*v11;
+	return out;
+end
+
 """ `rho = rState(p)`
 
 Returns a state that is an a mixture between the EPR pair (with probability *p*), and the state |01><01|.
 """
 
-function rState(p)
+function rState(p::Number)
 
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
@@ -55,19 +98,19 @@ function rState(p)
 	# Generate |01>
 	e0 = [1 0];
 	e1 = [0 1];
-	v11 = kron(e0,e1);
+	v01 = kron(e0,e1);
 
 	# Produce the desired mixture
-	out = p * epr + (1-p) * v11'*v11;
+	out = p * epr + (1-p) * v01'*v01;
 	return out;
 end
 
-""" `rho = rStateQutrit(p)`
+""" `rho = sStateQutrit(p)`
 
 Returns a state that is a mixture between a 3 dimensional maximally entangled state (with probability *p*) and the state |00><00|
 """
 
-function rStateQutrit(p::Number)
+function sStateQutrit(p::Number)
 
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
@@ -78,7 +121,7 @@ function rStateQutrit(p::Number)
 	# Generate |00>
 	e0 = [1 0 0];
 	e1 = [0 0 1];
-	v00 = kron(e0,e1);
+	v00 = kron(e0,e0);
 
 	# Produce the desired mixture
 	out = p * epr + (1-p) * v00'*v00;
@@ -87,13 +130,13 @@ function rStateQutrit(p::Number)
 end
 
 #
-# Outputs a ronald state of the form p EPR + (1-p) |0><0|
+# Outputs a ronald state of the form p EPR + (1-p) |11><11|
 #
 # Inputs: p
 
 """ `rho = rStatePhase(p, phi)` or `rho = rStatePhase(p)`
 
-Returns a mixture between a state proportional to |01> + e^(i *phi*) |10> (with probability *p*) and the state |00><00|. No value for *phi* defaults to *phi*=0.
+Returns a mixture between a state proportional to |01> + e^(i *phi*) |10> (with probability *p*) and the state |11><11|. No value for *phi* defaults to *phi*=0.
 
 """
 
@@ -112,25 +155,28 @@ function rStatePhase(p::Number, phi::Number = 0.0)
 	end
 
 	# Produce a state orthogonal to the one above
-	v00 = kron(e0,e0);
+	v11 = kron(e1,e1);
 
 	# Construct the desire mixture
-	out = p * vec*vec' + (1-p) * v00*v00';
+	out = p * vec*vec' + (1-p) * v11*v11';
 
   	return out
 end
 
-""" `rho = rStateCorrPhase(p)`
+""" `rho = rStateCorrPhase(p, pd)`
 
-Returns a state of the form integral phi r(p,phi) tensor r(p,phi), where 
-r(p,phi) = rStatePhase(p,phi).
+Returns a state of the form integral phi [pd * r(p,phi) + (1-pd) * r(p,phi+pi)] tensor r(p,phi), where 
+r(p,phi) = rStatePhase(p,phi). Default for pd is 1.
 """
-function rStateCorrPhase(p::Number)
+function rStateCorrPhase(p::Number, pd::Number=1)
 
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
 
-	integrand(phi) = ( 1/(2*pi) ) * kron(rStatePhase(p, phi), rStatePhase(p, phi));
+	
+    rStatePhaseDep(phi) = pd * rStatePhase(p, phi) + (1-pd) * rStatePhase(p, phi + pi)
+
+	integrand(phi) = ( 1/(2*pi) ) * kron(rStatePhaseDep(phi), rStatePhase(p, phi));
 
 	eps = 10.0^(-4)
 	out = real( quadgk( integrand, 0, 2 * pi; reltol=sqrt(eps), abstol=0, maxevals=10^7, order=7, norm=vecnorm)[1])
@@ -138,7 +184,7 @@ function rStateCorrPhase(p::Number)
 end
 
 
-""" `rho = rStateCorrPhase(p)`
+""" `rho = rStateCorrPhaseCopies(p)`
 
 Returns a state of the form integral phi r(p,phi)^(tensor n) , where 
 r(p,phi) = rStatePhase(p,phi) and n is the number of desired copies.
@@ -158,7 +204,7 @@ end
 
 """ `rho = wernerState(p)` or `rho = wernerState(p,d)`
 
-Returns a werner state, i.e., a mixture of a maximally entangled pair (with probability *p*) and the maximally mixed state in local dimension *d*. If no argument *d* is given the default is *d*=2, that is, we take the mixture of the EPR pair with the maximally entangled state.
+Returns a werner state, i.e., a mixture of a maximally entangled pair (with probability *p*) and the maximally mixed state in local dimension *d*. If no argument *d* is given the default is *d*=2, that is, we take the mixture of the EPR pair with the maximally mixed state of local dimension 2.
 """
 
 function wernerState(p::Number; d::Int = 2)

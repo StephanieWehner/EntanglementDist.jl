@@ -73,13 +73,19 @@ function pptRelax(rho::AbstractArray, nA::Int, nB::Int, k::Int, delta::Number; v
 		D = Semidefinite(d);
 		E = Semidefinite(d);
 	else 
-		D = HermitianSemidefinite(d);
-		E = HermitianSemidefinite(d);
+		# complex variable support advertises HermitianSemidefinite
+		# but it's buggy
+		D = ComplexVariable(d,d);
+		E = ComplexVariable(d,d);
 	end
 
 	# define the objective
-	problem = maximize(trace(nA * nB * D * rho.'));
+	tv = Variable(1);
+	problem = maximize(tv);
+	problem.constraints += tv == trace(nA * nB * D * rho.');
 
+	problem.constraints += D in :SDP;
+	problem.constraints += E in :SDP;
 	problem.constraints += (id/d - (D+E)) in :SDP;
 
 	# Constraints relating to the PPT Condition
@@ -91,7 +97,7 @@ function pptRelax(rho::AbstractArray, nA::Int, nB::Int, k::Int, delta::Number; v
 	# Constraint coming from the success probability
 	problem.constraints += nA * nB * trace(rho.'*(D+E)) == delta;
 
-	solve!(problem, SCSSolver(verbose = verbose, eps = eps, max_iters = max_iters));
+	solve!(problem, SCSSolver(verbose = verbose, eps = eps, max_iters = max_iters),verbose=verbose);
 	p_succ = nA * nB * trace(rho.'*(D.value + E.value));
 	F = problem.optval / p_succ;
 
