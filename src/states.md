@@ -4,8 +4,10 @@ The following functions generate specific sets of quantum states which commonly 
 
 ```@docs
 wernerState
+bellDiagState
+sState
 rState
-rStateQutrit
+sStateQutrit
 rStatePhase
 rStateCorrPhase
 rStateCorrPhaseCopies
