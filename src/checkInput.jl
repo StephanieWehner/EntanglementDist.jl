@@ -25,8 +25,8 @@ function isQuantumState(rho::AbstractMatrix, prec::Number=0.00001)
 	end
 
 	# Check the normalization
-	if (real(trace(rho)) < 1 - prec) && (real(trace(rho)) > 1 + prec)
-		print("isQuantumState: Matrix is does not have trace one.\n");
+	if (real(trace(rho)) < 1 - prec) || (real(trace(rho)) > 1 + prec)
+		print("isQuantumState: Matrix does not have trace one.\n");
 		return false;
 	end
 
@@ -98,7 +98,7 @@ function isPPT(rho::AbstractMatrix,nA::Number,nB::Number)
 	(da, db) = size(rho)
 	@assert (da ==  nA * nB) "Input does not match given dimensions."
 
-	rhoPT = partialTranspose(rho, nA, nB, 1);
+	rhoPT = partialtranspose(rho, 2, [nA, nB]);
 
 	# check for positivity
 	l = eig(rhoPT)[1]
