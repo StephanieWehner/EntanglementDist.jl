@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Installation",
     "category": "section",
-    "text": "First, you need the latest version of Convex which is not yet available  via Pkg.add. The new version of Convex.jl can handle complex matrices, which we will need. If you have a previously installed version remove it (Pkg.rm) and then install the most recent one by doing:Pkg.clone(\"https://github.com/JuliaOpt/Convex.jl.git\")If you have loaded Convex, a restart of Julia is required before you can use the new package.Second, you want to install the code of this package itself. Pkg.add(\"EntanglementDist\")In the usual way, you can now start using the package:using EntanglementDist;\nimportall EntanglementDist;You are now ready to go!"
+    "text": "First, you need the latest version of Convex which is not yet available  via Pkg.add. The new version of Convex.jl can handle complex matrices, which we will need. If you have a previously installed version remove it (Pkg.rm) and then install the most recent one by doing:Pkg.clone(\"https://github.com/JuliaOpt/Convex.jl.git\")If you have loaded Convex, a restart of Julia is required before you can use the new package.Second, you want to install the code of this package itself. Pkg.add(\"EntanglementDist\")In the usual way, you can now start using the package:using EntanglementDist;\nimportall EntanglementDist;You are now ready to go!  We recommend trying out the example IJulia sheet found in the example  directory."
 },
 
 {

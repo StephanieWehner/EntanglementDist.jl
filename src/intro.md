@@ -20,7 +20,9 @@ In the usual way, you can now start using the package:
 using EntanglementDist;
 importall EntanglementDist;
 ```
-You are now ready to go!
+You are now ready to go! 
+We recommend trying out the example IJulia sheet found in the example 
+directory.
 
 ## Basic functions
 Let's see how we can compute a bound on a basic filtering operation. First let us produce a state to be filtered:
@@ -42,5 +44,4 @@ k = 2;
 # Run the PPT relaxation, asking for success probability 0.9
 (problem, F, psucc) = pptRelax(rho,2,2,2,0.9)
 ```
-
 

@@ -1,6 +1,4 @@
-include("BEPQuantum.jl")
-
-using BEPQuantum
+using EntanglementDist
 using SQLite
 using Gadfly
 using DataFrames
@@ -17,13 +15,13 @@ convert(x::Type{Nullable{Float64}}, y::Int64) = convert(Nullable{Float64}, conve
 ps = collect(0.4:0.1:1)
 
 # The collection of states that are to be plotted
-states = AbstractString["Double Ronald 2"]
+states = AbstractString["pptRelax: Double Werner"]
 
 # The database where the data is stored
-db = SQLite.DB("newdata.sqlite")
+db = SQLite.DB("test.sqlite")
 
 # Title of the plot as a function of the parameter
-plottitle(p) = "Double Ronald 2 (p = $p)"
+plottitle(p) = "Double Werner (p = $p)"
 
 # Due to a bug in SQLite it might be the case that
 # an error is thrown because a certain column in the database
@@ -37,20 +35,20 @@ plottitle(p) = "Double Ronald 2 (p = $p)"
 for p in ps
   for state in states
     # calculate the performance of the protocols
-    if state == "Double Werner" || state == "Triple Werner"
+    if state == "pptRelax: Double Werner" || state == "Triple Werner"
       stateFn = wernerState
     elseif state == "Double Ronald"
-      stateFn = ronaldState
+      stateFn = sState
     elseif state == "Double Ronald 2"
-      stateFn = ronald2State
+      stateFn = rState
     elseif state == "Ronald 2 averaged phase" || state == "ronald2StateCorrPhase"
-      stateFn = ronald2StateCorrPhase
+      stateFn = rStateCorrPhase
     end
 
     # get data from DB
-    q = string("SELECT * FROM `RainsProb` WHERE
+    q = string("SELECT * FROM `pptRelax` WHERE
       (`state` = '", state, "') AND
-      `p` = '", p, "' AND `delta_min` = '0'")
+      `p` = '", p, "'")
       println(q)
     table = SQLite.query(db, q)
     # get rid of the nullables introduced by SQLite,
@@ -61,9 +59,9 @@ for p in ps
     end
     PPTdf = copy(table)
 
-    q = string("SELECT * FROM `RainsProb` WHERE
+    q = string("SELECT * FROM `pptRelax` WHERE
       (`state` = '1ext ", state, "') AND
-      `p` = '", p, "' AND `delta_min` = '0'")
+      `p` = '", p, "'")
       println(q)
     table = SQLite.query(db, q)
     # get rid of the nullables introduced by SQLite
@@ -72,9 +70,9 @@ for p in ps
     end
     kextdf = copy(table)
 
-    q = string("SELECT * FROM `RainsProb` WHERE
-      (`state` = '1ext ", state, " Only Sym') AND
-      `p` = '", p, "' AND `delta_min` = '0'")
+    q = string("SELECT * FROM `pptRelax` WHERE
+      (`state` = '1ext ", state, "') AND
+      `p` = '", p, "'")
       println(q)
     table = SQLite.query(db, q)
     # get rid of the nullables introduced by SQLite
@@ -121,20 +119,19 @@ for p in ps
       push!(names, "1-ext")
       push!(colors, "green")
     end
-
+    
     # Add for some input states the EPL protocol
-    if state == "Double Ronald 2" || state == "Ronald 2 averaged phase" || state == "ronald2StateCorrPhase"
-      F, p_succ = epl(p)
+      F, p_succ = EPLParam(sortAB(copies(stateFn(p),2),2,2))
       eplLayer = layer(y = [F], x = [p_succ], Geom.point, Theme(default_color=colorant"purple"))
       unshift!(layers, eplLayer)
       unshift!(names, "EPL protocol")
       unshift!(colors, "purple")
-    end
-
+    
+    
     # Include schemes in plots
-    F, p_succ = deutsch(stateFn(p))
+    F, p_succ = DEJMPSParam(stateFn(p))
     deutschLayer = layer(y = [F], x = [p_succ], Geom.point, Theme(default_color=colorant"cyan"))
-    F, p_succ = bennett(stateFn(p))
+    F, p_succ = BBPSSWParam(stateFn(p))
     bennettLayer = layer(y = [F], x = [p_succ], Geom.point, Theme(default_color=colorant"orange"))
 
     unshift!(layers, deutschLayer)
@@ -151,7 +148,7 @@ for p in ps
       Stat.yticks(ticks=collect(0.5:0.1:1)),
       Guide.xlabel("Probability of success"),
       Guide.ylabel("Fidelity"),
-      Guide.title(plottitle(p))),
+      Guide.title(plottitle(p)),
       Guide.manual_color_key("Legend",
         names,
         colors)

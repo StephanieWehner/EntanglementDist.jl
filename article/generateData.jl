@@ -1,5 +1,4 @@
-include("BEPQuantum.jl")
-using BEPQuantum
+using EntanglementDist
 using SQLite
 using Convex
 
@@ -9,9 +8,9 @@ using Convex
 
 ### Settings ###
 # Database where output is saved
-db = SQLite.DB("newdata.sqlite")
+db = SQLite.DB("test.sqlite")
 ps = collect(0.4:0.1:1)
-δs = [0.1:0.05:1]
+δs = collect(0.1:0.05:1)
 ϵ = 1e-4 # relative accuracy
 
 # This is the name under which the results are saved
@@ -21,18 +20,20 @@ ps = collect(0.4:0.1:1)
 # that the state name is of the following form:
 # `{statename}` for PPT program
 # `1ext {statename}` for 1 extension
-# `1ext {statename} Only Sym` for 1 extension where only the symmetric subspace is used
-stateName = "Triple Werner"
-n_copies = 3
+stateName = "pptRelax: Double Werner"
+n_copies = 2
+#Local dimensions of individual copies:
+nA = 2
+nB = 2
+# local dimension of the desired maximally entangled state
+k=2
 
 """
 Generate one copy of the state. Change this to perform numerics on another state!
 """
 function generateState(parameter)
-  # return ronald2State(parameter)
   return wernerState(parameter)
-  return ronald2StateCorrPhase(parameter)
-  return sparse(round(ronald2StateCorrPhase(parameter) ⊗ ronald2StateCorrPhase(parameter), 7))
+  #return rStateCorrPhase(parameter)
 end
 
 # No need to change this
@@ -43,19 +44,19 @@ maxRetries = 20
 retries = 0
 foundNaN = false
 
-"""
-Generate n copies of the state
-"""
-function generateState(parameter, n_copies::Int)
-    return copies(generateState(parameter),  n_copies)
-end
+# """
+# Generate n copies of the state
+# """
+# function generateState(parameter, n_copies::Int)
+#     return copies(generateState(parameter),  n_copies)
+# end
 
 """
 Save found (F, p_succ) to the database
 """
 function saveData(F, p_succ, δ, stateName, p, eprF, ϵ)
-  q = string("INSERT INTO `RainsProb` (`fidelity`, `p_succ`, `delta_max`, `delta_min`, `state`, `p`, `eprFidelity`, `eps`)
-    VALUES (" , F , ", ", p_succ ,", ", δ ,", 0, '", stateName, "', ", p ,", ", eprF, ", ", ϵ ,")")
+  q = string("INSERT INTO `pptRelax` (`fidelity`, `p_succ`, `delta`, `state`, `p`, `eprFidelity`, `eps`)
+    VALUES (" , F , ", ", p_succ ,", ", δ ,", '", stateName, "', ", p ,", ", eprF, ", ", ϵ ,")")
   SQLite.query(db, q)
 end
 
@@ -63,7 +64,7 @@ end
 Check in the database if the combination (state, δ, p_succ) already occurs
 """
 function hasBeenComputed(δ, stateName, p, ϵ)
-  q = string("SELECT COUNT(*) FROM `RainsProb` WHERE `delta_max` = ", δ ," AND `delta_min` = 0 AND p = ", p ," AND `state` = '", stateName, "' AND eps <= '", ϵ,"'")
+  q = string("SELECT COUNT(*) FROM `pptRelax` WHERE `delta` = ", δ ," AND p = ", p ," AND `state` = '", stateName, "' AND eps <= '", ϵ,"'")
   result = SQLite.query(db, q)
   count = result[1][1].value
 
@@ -98,12 +99,9 @@ while firstRun == true || (foundNaN == true && retries < maxRetries)
       # start timer
       starttime = time()
 
-      δ_max = δ
-      δ_min = 0
-
       # check if it is already computed
       computed = hasBeenComputed(δ, stateName, p, ϵ)
-
+      
       # only compute data if no entry is available
       if !computed
         state = generateState(p)
@@ -112,10 +110,10 @@ while firstRun == true || (foundNaN == true && retries < maxRetries)
         # Alter the line below to run another program (e.g. PPT or k-ext)
         # The program type should be included in the state name as otherwise
         # there is no way to tell them apart.
-        (problem, F, p_succ) = RainsProb(state, n_copies, δ, verbose = true, eps = ϵ, max_iters = 1e7, copystate = true)
+        (problem, F, p_succ) = pptRelaxCopies(state, n_copies, nA, nB, k, δ, verbose = false, eps = ϵ, max_iters = 1e7)
         # (problem, F, p_succ) = PPTprogrammeNoTwirling1ExtPermSymOnlySym(state, 2^n_copies, 2^n_copies, n_copies, 2, δ, verbose = true, eps = 1e-4)
-        # eprF = eprFidelity(generateState(p, 1))
-        eprF = 0
+        eprF = eprFidelity(generateState(p))
+        
 
         println("found (F, p_succ) = " , (F, p_succ))
 
