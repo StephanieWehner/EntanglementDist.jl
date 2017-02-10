@@ -33,7 +33,7 @@ function isQuantumState(rho::AbstractMatrix, prec::Number=0.00001)
 	return true;
 end
 
-""" 'b = isHermitian(rho)' or 'b = is Hermitian(rho, prec)'
+""" `b = isHermitian(rho)` or `b = is Hermitian(rho, prec)`
 
 Checks whether the input matrix rho is a Hermitian matrix. Entries are compares up to precision *prec* on average.
 
@@ -51,7 +51,7 @@ function isHermitian(rho::AbstractMatrix, prec::Number=0.00001)
 	return true;
 end
 
-""" 'b = isUnitary(U)'
+""" `b = isUnitary(U)`
 
 Checks whether the input matrix is unitary.
 
@@ -69,10 +69,10 @@ function isUnitary(U::AbstractMatrix)
 	end
 
 	# Check unitarity
-	if (U*U' != eye(d))
+	if (round(U*U',6) != eye(d))
 		return false;
 	end
-	if (U'*U != eye(d))
+	if (round(U'*U,6) != eye(d))
 		return false;
 	end
 
@@ -96,7 +96,7 @@ function isPPT(rho::AbstractMatrix,nA::Number,nB::Number)
 
 	# Check whether dimensions match
 	(da, db) = size(rho)
-	@assert (da ==  nA * nB) "Input does not match given dimensions."
+	@assert (da ==Â  nA * nB) "Input does not match given dimensions."
 
 	rhoPT = partialtranspose(rho, 2, [nA, nB]);
 
