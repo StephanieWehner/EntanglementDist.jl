@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for creating and manipulating quantum states",
     "title": "EntanglementDist.isHermitian",
     "category": "Function",
-    "text": "'b = isHermitian(rho)' or 'b = is Hermitian(rho, prec)'\n\nChecks whether the input matrix rho is a Hermitian matrix. Entries are compares up to precision prec on average.\n\nReturns true/false.\n\n\n\n"
+    "text": "b = isHermitian(rho) or b = is Hermitian(rho, prec)\n\nChecks whether the input matrix rho is a Hermitian matrix. Entries are compares up to precision prec on average.\n\nReturns true/false.\n\n\n\n"
 },
 
 {
@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for creating and manipulating quantum states",
     "title": "EntanglementDist.isUnitary",
     "category": "Function",
-    "text": "'b = isUnitary(U)'\n\nChecks whether the input matrix is unitary.\n\nReturns true/false.\n\n\n\n"
+    "text": "b = isUnitary(U)\n\nChecks whether the input matrix is unitary.\n\nReturns true/false.\n\n\n\n"
 },
 
 {
@@ -225,6 +225,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "quantum.html#EntanglementDist.eprFidelity",
+    "page": "Tools for creating and manipulating quantum states",
+    "title": "EntanglementDist.eprFidelity",
+    "category": "Function",
+    "text": "F = eprFidelity(rho)\n\nFor locally two-dimensional states, returns the fidelity with the closest bell state.\n\n\n\n"
+},
+
+{
+    "location": "quantum.html#EntanglementDist.permutesystems",
+    "page": "Tools for creating and manipulating quantum states",
+    "title": "EntanglementDist.permutesystems",
+    "category": "Function",
+    "text": "rhoOut = permutesystems(rho, perm) or rhoOut = permutesystems(rho, perm, dim) or rhoOut = permutesystems(rho,perm, dim, row_only) or rhoOut = permutesystems(rho,perm, dim, row_only, inv_perm)\n\nPermutes the systems in the matrix rho.\n\nInputs:\n\nrho input matrix\nperm a permutation vector on all the systems\ndim (optional keyword argument) vector with dimensions of all the systems. By default all systems are of equal dimension.\nrow_only (optional keyword argument) if set to true, only the rows of rho are permuted.\ninv_perm (optional keyword argument) if set to true, the subsystems are permuted according to the inverse of perm rather than perm itself.\n\nOutputs:\n\nrhoOut matrix rho with permuted systems\n\n\n\n"
+},
+
+{
     "location": "quantum.html#EntanglementDist.partialtrace",
     "page": "Tools for creating and manipulating quantum states",
     "title": "EntanglementDist.partialtrace",
@@ -237,7 +253,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for creating and manipulating quantum states",
     "title": "EntanglementDist.partialtranspose",
     "category": "Function",
-    "text": "Apply the partial tanspose to multiple sytems.\n\n\n\nApply partial transpose on systems if naive is false. Otherwise do the naive partial transpose in blocks of l × l. This is equivalent to applying the partial transepose to the last system if that particular system has dimension l.\n\n\n\n"
+    "text": "rhoOut = partialtranspose(rho) or rhoOut = partialtranspose(rho, sys) or rhoOut = partialtranspose(rho, sys, dim)\n\nApplies the partial tanspose to the matrix rho.\n\nInputs:\n\nrho input matrix\nsystems (optional) single system or a vector of systems to be transposed. By default it is equal to 2. If dim is not provided, the only two possible values of systems are 1 or 2.\ndim (optional) vector with dimensions of the systems. By default it assumes two systems of equal dimensions.\n\nOutputs:\n\nrhoOut matrix rho with partial transpose applied\n\n\n\n"
 },
 
 {
@@ -245,7 +261,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tools for creating and manipulating quantum states",
     "title": "Tools for creating and manipulating quantum states",
     "category": "section",
-    "text": "Within our package we provide a number of useful functions for dealing with quantum states. isQuantumState\nisHermitian\nisUnitary\neVec\nmaxEnt\nmaxEntVec\ncopies\nsortAB\nentFidelity\npartialtrace\npartialtranspose"
+    "text": "Within our package we provide a number of useful functions for dealing with quantum states. isQuantumState\nisHermitian\nisUnitary\neVec\nmaxEnt\nmaxEntVec\ncopies\nsortAB\nentFidelity\neprFidelity\npermutesystems\npartialtrace\npartialtranspose"
 },
 
 {
@@ -257,27 +273,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "schemes.html#EntanglementDist.deutschParam",
+    "location": "schemes.html#EntanglementDist.DEJMPSParam",
     "page": "Known distillation/filtering schemes",
-    "title": "EntanglementDist.deutschParam",
+    "title": "EntanglementDist.DEJMPSParam",
     "category": "Function",
-    "text": "(F, p_succ) = deutschParam(rho)\n\nDetermines the performance of DEJMPS for an input state rho and returns the fidelity and success probability achieved.\n\n\n\n"
+    "text": "(F, p_succ) = DEJMPSParam(rho)\n\nDetermines the performance of DEJMPS for two copies of the input state rho (consisting of two qubits) and returns the fidelity and success probability achieved. The procedure optimises over local single qubit rotations that permute the bell diagonal coefficients before the CNOTs to achieve the highest output fidelity. returns (F_out, p_succ)\n\n\n\n"
 },
 
 {
-    "location": "schemes.html#EntanglementDist.bennettParam",
+    "location": "schemes.html#EntanglementDist.BBPSSWParam",
     "page": "Known distillation/filtering schemes",
-    "title": "EntanglementDist.bennettParam",
+    "title": "EntanglementDist.BBPSSWParam",
     "category": "Function",
-    "text": "`(F, p_succ) = bennettParam(F) Determines the performance of BBPSSW for an input state with fidelity F returns (F_out, p_succ)\n\n\n\nDetermines the performance of BBPSSW for an input state ρ returns (F_out, p_succ)\n\n\n\n"
+    "text": "(F, p_succ) = BBPSSWParam(F)\n\nDetermines the performance of BBPSSW for two copies of the input state (consisting of two qubits) with fidelity F each. returns (F_out, p_succ)\n\n\n\n(F, p_succ) = BBPSSWParam(rho)\n\nDetermines the performance of BBPSSW for two copies of the input state rho (consisting of two qubits). returns (F_out, p_succ)\n\n\n\n"
 },
 
 {
-    "location": "schemes.html#EntanglementDist.eplParam",
+    "location": "schemes.html#EntanglementDist.EPLParam",
     "page": "Known distillation/filtering schemes",
-    "title": "EntanglementDist.eplParam",
+    "title": "EntanglementDist.EPLParam",
     "category": "Function",
-    "text": "Determines the performance of EPL for Ronald 2 states returns (F_out, p_succ)\n\n\n\n"
+    "text": "(F, p_succ) = EPLParam(p, pd)\n\nDetermines the performance of EPL for rStateCorrPhase. The inputs are the p and pd parameters of rStateCorrPhase. returns (F_out, p_succ)\n\n\n\n(F, p_succ) = EPLParam(rho)\n\nDetermines the performance of EPL for an arbitrary bipartite state of dimensions nA=nB=4. returns (F_out, p_succ)\n\n\n\n"
 },
 
 {
@@ -317,7 +333,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Known distillation/filtering schemes",
     "title": "Known distillation/filtering schemes",
     "category": "section",
-    "text": "Compute how well several known entanglement distillation schemes perform on specific input states. We also implement a simple filtering scheme and provide function for computing the performance of general filtering schemes given the relevant measurement operators. The functions computing the choi states of said filtering protocols can be used to test the performance of the seesaw method.deutschParam\nbennettParam\neplParam\nfiltering\nfilteringMakeChoi\nmeasureScheme\nmeasureSchemeMakeChoi"
+    "text": "Compute how well several known entanglement distillation schemes perform on specific input states. We also implement a simple filtering scheme and provide function for computing the performance of general filtering schemes given the relevant measurement operators. The functions computing the choi states of said filtering protocols can be used to test the performance of the seesaw method.DEJMPSParam\nBBPSSWParam\nEPLParam\nfiltering\nfilteringMakeChoi\nmeasureScheme\nmeasureSchemeMakeChoi"
 },
 
 {
@@ -365,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Special quantum states",
     "title": "EntanglementDist.sStateQutrit",
     "category": "Function",
-    "text": "rho = rStateQutrit(p)\n\nReturns a state that is a mixture between a 3 dimensional maximally entangled state (with probability p) and the state |00><00|\n\n\n\n"
+    "text": "rho = sStateQutrit(p)\n\nReturns a state that is a mixture between a 3 dimensional maximally entangled state (with probability p) and the state |00><00|\n\n\n\n"
 },
 
 {
@@ -429,7 +445,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Using the method of k extensions",
     "title": "Using the method of k extensions",
     "category": "section",
-    "text": "This example is almost identical to the one of PPT relaxations, except that we will use instead the method of symmetric extensions to try and get a sharper bound. In the example below, we will allow one extra extension.Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).\nrho = wernerState(0.9);\nLet's now go and compute the maximum fidelity of distillting a few of these Werner states.\n# Local dimension of what we'll call Alice in the input state rho\nnA = 2;\n\n# Similarly for Bob\nnB = 2;\n\n# Number of copies to distill\nn = 3;\n\n# Dimension of the maximally entangled state with want to produce\nk = 2;\n\n# Desired probability of success\ndelta = 0.8;\n\n# Compute the maximum fidelity F\n(problem, F, psucc) = pptRelax1ExtCopies(rho, n, nA, nB, k, delta); "
+    "text": "This example is almost identical to the one of PPT relaxations, except that we will use instead the method of extensions to try and get a sharper bound. In the example below, we will allow one extra symmetric extension.Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).\nrho = wernerState(0.9);\nLet's now go and compute the maximum fidelity of distilling a few of these Werner states.\n# Local dimension of what we'll call Alice in the input state rho\nnA = 2;\n\n# Similarly for Bob\nnB = 2;\n\n# Number of copies to distill\nn = 3;\n\n# Dimension of the maximally entangled state with want to produce\nk = 2;\n\n# Desired probability of success\ndelta = 0.8;\n\n# Compute the maximum fidelity F\n(problem, F, psucc) = pptRelax1ExtCopies(rho, n, nA, nB, k, delta); "
 },
 
 {

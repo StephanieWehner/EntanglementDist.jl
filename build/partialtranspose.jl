@@ -10,10 +10,10 @@ export partialtransposematrix, partialtranspose, partialtransposenaive
 vecCoordToMatrixCoord(k::Integer, n::Integer) = (1 + (k-1)%n, round(Int, 1+floor((k-1)/n)%n))
 matrixCoordToVecCoord(i::Integer, j::Integer, n::Integer) = i + (j-1)*n
 
-"""
-Determine the new coordinates `(x, y)` of an entry
-with coordinates `(i, j)` after partial transposition.
-"""
+
+#Determine the new coordinates `(x, y)` of an entry
+#with coordinates `(i, j)` after partial transposition.
+
 function partialtranseposecoord(i::Integer, j::Integer, n::Integer, l::Integer)
   @assert n % l == 0 "l should divide n"
   @assert n ≥ l "n should be greater than l"
@@ -33,10 +33,10 @@ function partialtranseposecoord(i::Integer, j::Integer, n::Integer, l::Integer)
   return (x, y)
 end
 
-"""
-Construct a permutation matrix for a `n × n` matrix
-in vector form where we transpose in `l × l` blocks.
-"""
+
+#Construct a permutation matrix for a `n × n` matrix
+#in vector form where we transpose in `l × l` blocks.
+
 function partialtransposematrix(n::Integer, l::Integer)
   @assert n % l == 0 "l should divide n"
   @assert n ≥ l "n should be greater than l"
@@ -61,8 +61,17 @@ function partialtransposematrix(n::Integer, l::Integer)
   return sparse(IM, JM, 1)
 end
 
-"""
-Apply the partial tanspose to multiple sytems.
+""" `rhoOut = partialtranspose(rho)` or `rhoOut = partialtranspose(rho, sys)` or `rhoOut = partialtranspose(rho, sys, dim)`
+
+Applies the partial tanspose to the matrix *rho*.
+
+Inputs:
+- *rho* input matrix
+- *systems* (optional) single system or a vector of systems to be transposed. By default it is equal to 2. If *dim* is not provided, the only two possible values of *systems* are 1 or 2.
+- *dim* (optional) vector with dimensions of the systems. By default it assumes two systems of equal dimensions.
+
+Outputs:
+- *rhoOut* matrix *rho* with partial transpose applied
 """
 function partialtranspose(ρ::Union{AbstractArray, AbstractExpr}, systems::Vector, dim::Vector)
   result = ρ
@@ -72,15 +81,14 @@ function partialtranspose(ρ::Union{AbstractArray, AbstractExpr}, systems::Vecto
   return result
 end
 
-"""
-Apply the partial tanspose to a single sytem. If no
-dimensions are specified, it will assume there are
-two system of identical dimension. If no system is
-specified, it will tranpose the last system. This
-will always be the second system, because it's not
-possible to leave out the system while providing
-the dimensions.
-"""
+#Apply the partial tanspose to a single sytem. If no
+#dimensions are specified, it will assume there are
+#two systems of identical dimension. If no system is
+#specified, it will transpose the last system. This
+#will always be the second system, because it's not
+#possible to leave out the system while providing
+#the dimensions.
+
 function partialtransposesystem(ρ::Union{AbstractArray, AbstractExpr}, sys::Integer = 2, dim::Vector = [])
   # do naive partial transposition
   if dim == []
@@ -103,34 +111,35 @@ function partialtransposesystem(ρ::Union{AbstractArray, AbstractExpr}, sys::Int
   l = dim[sys]
   x = permutesystems(ρ, perm, dim = dim)
   y = partialtransposenaive(x, l)
-	print("OK\n");	
+	#print("OK\n");	
   z = permutesystems(y, perm, dim = dim)
   return z
 end
 
-"""
-Apply partial transpose on systems if naive is false.
-Otherwise do the naive partial transpose in blocks
-of `l × l`. This is equivalent to applying the partial
-transepose to the last system if that particular system
-has dimension `l`.
-"""
-function partialtranspose(ρ::Union{AbstractArray, AbstractExpr}, l_or_sys::Integer = 2, dims::Vector = []; naive::Bool = false)
+
+#Apply partial transpose on systems if naive is false.
+#Otherwise do the naive partial transpose in blocks
+#of `l × l`, where `l` takes the value `systems`.
+#This is equivalent to applying the partial
+#transepose to the last system if that particular system
+#has dimension `l`.
+
+function partialtranspose(ρ::Union{AbstractArray, AbstractExpr}, systems::Integer = 2, dim::Vector = []; naive::Bool = false)
   if naive
-    return partialtransposenaive(ρ, l_or_sys)
+    return partialtransposenaive(ρ, systems)
   end
 
-  return partialtransposesystem(ρ, l_or_sys, dims)
+  return partialtransposesystem(ρ, systems, dim)
 end
 
 
-"""
-This does the naive version of the partial transpose
-that I wrote first it simply applies a transpose in blocks
-of `l × l`. This is equivalent to applying the partial
-transepose to the last system if that particular system
-has dimension `l`.
-"""
+
+#This does the naive version of the partial transpose
+#that I wrote first it simply applies a transpose in blocks
+#of `l × l`. This is equivalent to applying the partial
+#transepose to the last system if that particular system
+#has dimension `l`.
+
 function partialtransposenaive(ρ::Union{AbstractExpr, AbstractArray, Convex.Variable}, l::Integer)
   # if the input is sparse, keep the output sparse as well
   if !isa(ρ, Convex.Variable) && !isa(ρ, AbstractExpr) && issparse(ρ)

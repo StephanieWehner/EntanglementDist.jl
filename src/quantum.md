@@ -12,6 +12,8 @@ maxEntVec
 copies
 sortAB
 entFidelity
+eprFidelity
+permutesystems
 partialtrace
 partialtranspose
 ```
