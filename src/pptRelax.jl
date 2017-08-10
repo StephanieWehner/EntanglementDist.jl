@@ -11,7 +11,7 @@ Implements the PPT relaxation computing an upper bound on the fidelity achievabl
 
 Inputs:
 - *rho* quantum state to be distilled
-- *n* number of qubits on one side, assuming dimensions nA=nB =2^n in the input. 
+- *n* number of qubits on one side, assuming dimensions nA=nB =2^n in the input.
 - *k* desired output dimension of the maximally entangled state
 - *delta* desired success probability
 - *verbose* flag indicating whether the SCS solver should be verbose (default false)
@@ -39,7 +39,7 @@ Implements the PPT relaxation computing an upper bound on the fidelity achievabl
 Inputs:
 - *rho* quantum state to be distilled on A and B
 - *nA* dimension of the A system
-- *nB* dimension of the B system 
+- *nB* dimension of the B system
 - *k* desired output dimension of the maximally entangled state
 - *delta* desired success probability
 - *verbose* flag indicating whether the SCS solver should be verbose (default true)
@@ -59,7 +59,7 @@ function pptRelax(rho::AbstractArray, nA::Int, nB::Int, k::Int, delta::Number; v
 
 	# Check whether dimensions match
 	(d, db) = size(rho);
-	@assert d == nA * nB "Input state doesn't match given dimensions." , d , " != ", nA*nB
+	@assert d == nA * nB "Input state doesn't match given dimensions." , d , " != ", nA*nB
 
 	# Check whether delta is a valid probability
 	@assert delta <= 1 "Success probability must be less than one."
@@ -72,7 +72,7 @@ function pptRelax(rho::AbstractArray, nA::Int, nB::Int, k::Int, delta::Number; v
 	if real(rho) == rho
 		D = Semidefinite(d);
 		E = Semidefinite(d);
-	else 
+	else
 		# complex variable support advertises HermitianSemidefinite
 		# but it's buggy
 		D = ComplexVariable(d,d);
@@ -93,6 +93,7 @@ function pptRelax(rho::AbstractArray, nA::Int, nB::Int, k::Int, delta::Number; v
 	DPT = ptranspose(D);
 	problem.constraints += (DPT + EPT/(k+1)) in :SDP;
 	problem.constraints += (- DPT + EPT/(k-1)) in :SDP;
+	problem.constraints += (id/d - (DPT+EPT)) in :SDP;
 
 	# Constraint coming from the success probability
 	problem.constraints += nA * nB * trace(rho.'*(D+E)) == delta;
