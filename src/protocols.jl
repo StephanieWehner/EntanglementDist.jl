@@ -1,18 +1,18 @@
 # Implements some well known distillation/filtering protocols
 #
 # It will create a QC state of the form
-# rho_hatA, hatB, F_A, F_B where hatA, and hatB contain the outputs, 
+# rho_hatA, hatB, F_A, F_B where hatA, and hatB contain the outputs,
 # and FA, FB are the flag registers
 #
 
 
 export filtering, filteringMakeChoi, measureScheme, measureSchemeMakeChoi;
 
-""" 
+"""
 ``(rhoQC,P,F,psucc) = filtering(rhoAB,eps)`
 
 Implements the filtering protocol on input state *rho* with filtering parameter *eps*. This filtering protocol is designed
-to work well on states of the form p * EPR + (1-p) |10><10|. 
+to work well on states of the form p * EPR + (1-p) |10><10|.
 
 Input:
 - *rhoAB* 2x2 state to be filtered
@@ -32,7 +32,7 @@ function filtering(rho::AbstractMatrix, eps::Number; makeChoi::Bool=false)
 	@assert eps <= 1 "Filtering parameter eps needs to be less than 1."
 	@assert eps >= 0 "Filtering parameter eps must be positive."
 
-	# Measurement operator for Alice and Bob 
+	# Measurement operator for Alice and Bob
 	MokAlice = sqrt(eps) * eVec(2,1)*eVec(2,1)' + eVec(2,2)*eVec(2,2)';
 	MfailAlice = sqrt(1-eps) * eVec(2,1) * eVec(2,1)';
 	MokBob = sqrt(eps) * eVec(2,2)*eVec(2,2)' + eVec(2,1)*eVec(2,1)';
@@ -53,12 +53,12 @@ function filtering(rho::AbstractMatrix, eps::Number; makeChoi::Bool=false)
 	return(rhoQC, P, F, psucc);
 end
 
-""" 
+"""
 ``(choiA, choiB) = filteringMakeChoi(eps)`
 
 Computes the choi states for Alice and Bob in the filtering protocol
 with filtering parameter *eps*. This filtering protocol is designed
-to work well on states of the form p * EPR + (1-p) |10><10|. 
+to work well on states of the form p * EPR + (1-p) |10><10|.
 
 Input:
 - *eps* filtering parameter, smaller eps typically means higher fidelity but lower probability of success
@@ -73,7 +73,7 @@ function filteringMakeChoi(eps::Number)
 	@assert eps <= 1 "Filtering parameter eps needs to be less than 1."
 	@assert eps >= 0 "Filtering parameter eps must be positive."
 
-	# Measurement operator for Alice and Bob 
+	# Measurement operator for Alice and Bob
 	MokAlice = sqrt(eps) * eVec(2,1)*eVec(2,1)' + eVec(2,2)*eVec(2,2)';
 	MfailAlice = sqrt(1-eps) * eVec(2,1) * eVec(2,1)';
 	MokBob = sqrt(eps) * eVec(2,2)*eVec(2,2)' + eVec(2,1)*eVec(2,1)';
@@ -148,7 +148,7 @@ end
 """ `choiState = measureSchemeMakeChoi(MokAlice, MfailAlice, fokAlice, ffailAlice)`
 
 Computes the choi state of a measuring distillation/filtering protocol of one party: Outputs choi_QA where A is a copy of the input and Q is the output of the distillation map A->hatA, fA
- 
+
 Input:
 - *MokAlice* Kraus operator corresponding to Alice success
 - *MfailAlice* Kraus operator corresponding to Alice failure
@@ -175,7 +175,7 @@ function measureSchemeMakeChoi(MokAlice::AbstractMatrix, MfailAlice::AbstractMat
 	choi += kron(kron(MfailAlice,id) * rho * kron(MfailAlice,id)', ffailAlice);
 
 	# Reorder to hatA, F_A, A
-	choi = permutesystems(choi, [1, 3, 2], dim=[outA, inA, fA]);
+	choi = permutesystems(choi, [1, 3, 2], [outA, inA, fA]);
 
 	return choi;
 end

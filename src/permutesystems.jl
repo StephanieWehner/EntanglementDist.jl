@@ -19,7 +19,7 @@ Outputs:
 - *rhoOut* matrix *rho* with permuted systems
 """
 
-function permutesystems(X, perm; dim = false, row_only = false, inv_perm = false)
+function permutesystems(X, perm, dim = false, row_only = false, inv_perm = false)
 	dX = collect(size(X));
   	is_vec = (minimum(dX) == 1) || (length(dX) == 1);
   	num_sys = length(perm);
@@ -78,10 +78,10 @@ function permutesystems(X, perm; dim = false, row_only = false, inv_perm = false
   	# used here reduces the problem to the pure state version of the problem in
   	# another way that plays nicely with both full and sparse matrices
   	dim = round(Int, dim)
-  	row_perm = permutesystems(collect(1:dX[1]), perm, dim = dim[1, :], row_only = false, inv_perm = inv_perm)
+  	row_perm = permutesystems(collect(1:dX[1]), perm, dim[1, :], false, inv_perm)
   	PX = X[row_perm, :]
   	if ! row_only
-    		col_perm = permutesystems(collect(1:dX[2]), perm, dim = dim[2, :], row_only = false, inv_perm = inv_perm)
+    		col_perm = permutesystems(collect(1:dX[2]), perm, dim[2, :], false, inv_perm)
     		PX = PX[:, col_perm]
   	end
   	return PX;
