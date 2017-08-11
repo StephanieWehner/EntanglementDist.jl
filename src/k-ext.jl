@@ -105,7 +105,9 @@ function pptRelax1Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 
 	# define constraints
 	problem.constraints += [
-	eye(d)/d - partialtrace(W_A2B , [1, 3], [k, nA, k, nB]) ⪰ 0
+
+	eye(d)/d - partialtrace(W_A2B , [1, 3], [k, nA, k, nB]) in :SDP
+	eye(d)/d - ptranspose(partialtrace(W_A2B , [1, 3], [k, nA, k, nB])) in :SDP
 
 	# constrain probability of success
 	p_succ == delta
@@ -201,7 +203,7 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	ms = k^4 * nA^3 * nB;
 		W_total= ComplexVariable(ms,ms);
 	end
-	
+
 
 	# output state
 	epr = maxEnt(k);
@@ -230,10 +232,11 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	# define constraints
 	problem.constraints += [
 		eye(d)/d - partialtrace(W_A1B , [1, 3], [k, nA, k, nB]) in :SDP
+		eye(d)/d - ptranspose(partialtrace(W_A1B , [1, 3], [k, nA, k, nB])) in :SDP
 
 		# constrain probability of success
 		nA * nB * trace(permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B) == delta
-		
+
 
 		# PPT condition
 		ptranspose(W_A1B) in :SDP
@@ -284,7 +287,7 @@ Outputs:
 - *Pcb* the change of basis matrix
 """
 function getPcb(nA::Number, nB::Number, k::Number)
-  
+
 	#generate basis vectors on the k * nA dimensional system Ahat_i A'_i
 	v0 = spzeros(k * nA, 1)
 	v = Any[]
