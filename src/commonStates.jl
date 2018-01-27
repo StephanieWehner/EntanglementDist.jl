@@ -106,7 +106,7 @@ end
 
 """ `rho = rState(p)`
 
-Returns a mixture between a state proportional to |01> + |10> (with probability *p*) and the state |01><01|.
+Returns a mixture between a state proportional to |01> + |10> (with probability *p*) and the state |11><11|.
 """
 
 rState(p::Number) = rStatePhase(p, 0)
@@ -122,7 +122,7 @@ function rStatePhase(p::Number, phi::Number = 0.0)
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
 
-	# Produce the state |00> + e^(i phi) |11>
+	# Produce the state |01> + e^(i phi) |10>
 	e0 = eVec(2, 1);
 	e1 = eVec(2, 2);
 	vec = (kron(e0, e1) + e^(im*phi) * kron(e1,e0))/sqrt(2);

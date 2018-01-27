@@ -44,7 +44,7 @@ end
 	@test bellDiagState(0.25,0.25,0.25) ≈ eye(4)/4
 	@test bellDiagState(1,0,0) ≈ maxEnt(2)
 	@test sState(0.8) ≈ 0.8 * maxEnt(2) + 0.2 * kron(eVec(2,2),eVec(2,2))*kron(eVec(2,2),eVec(2,2))'
-	@test rState(0.8) ≈ 0.8 * maxEnt(2) + 0.2 * kron(eVec(2,1),eVec(2,2))*kron(eVec(2,1),eVec(2,2))'
+	@test rState(0.8) ≈ 0.8 * bell[3,1:4]* bell[3,1:4]' + 0.2 * kron(eVec(2,2),eVec(2,2))*kron(eVec(2,2),eVec(2,2))'
 	@test sStateQutrit(0.8) ≈ 0.8 * maxEnt(3) + 0.2 * kron(eVec(3,1),eVec(3,1))*kron(eVec(3,1),eVec(3,1))'
 	@test rStatePhase(0.8, pi) ≈ 0.8 * bell[4,1:4]*bell[4,1:4]' + 0.2 * kron(eVec(2,2),eVec(2,2))*kron(eVec(2,2),eVec(2,2))'
 	@test rStateCorrPhase(0, 0.8) ≈ eVec(16,16) * eVec(16,16)'
@@ -90,8 +90,10 @@ end
 	@test round(F,3) == round(initF,3)
 
 	# Same for 1 extension
+	id = eye(2)
+	X = [0 1; 1 0];
 	rho = rState(0.9);
-	initF = entFidelity(rho);
+	initF = entFidelity(kron(id, X) * rho * kron(id, X)');
 	(problem,F,psucc) = pptRelax1Ext(rho,2,2,2,1, verbose = false);
 	@test round(F,3) == round(initF,3)
 
