@@ -5,7 +5,7 @@ Compute how well several known entanglement distillation schemes perform on spec
 ```@docs
 DEJMPSParam
 BBPSSWParam
-EPLParam
+EPLDParam
 filtering
 filteringMakeChoi
 measureScheme

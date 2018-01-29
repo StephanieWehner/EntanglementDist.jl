@@ -1,6 +1,6 @@
 # Defines some commonly used states in quantum information
 
-export bell, bellDiagState, wernerState, rState, sState, sStateQutrit, rStatePhase, rStateCorrPhase, rStateCorrPhaseCopies;
+export bell, bellDiagState, isotropicState, rState, sState, sStateQutrit, rStatePhase, rStateCorrPhase, rStateCorrPhaseCopies;
 
 """ `bell`
 
@@ -179,12 +179,12 @@ function rStateCorrPhaseCopies(p::Number, n::Int)
   	return out
 end
 
-""" `rho = wernerState(p)` or `rho = wernerState(p,d)`
+""" `rho = isotropicState(p)` or `rho = isotropicState(p,d)`
 
-Returns a werner state, i.e., a mixture of a maximally entangled pair (with probability *p*) and the maximally mixed state in local dimension *d*. If no argument *d* is given the default is *d*=2, that is, we take the mixture of the EPR pair with the maximally mixed state of local dimension 2.
+Returns an isotropic state, i.e., a mixture of a maximally entangled pair (with probability *p*) and the maximally mixed state in local dimension *d*. If no argument *d* is given the default is *d*=2, that is, we take the mixture of the EPR pair with the maximally mixed state of local dimension 2.
 """
 
-function wernerState(p::Number; d::Int = 2)
+function isotropicState(p::Number; d::Int = 2)
 
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."

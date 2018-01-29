@@ -2,15 +2,15 @@
 
 Let us now see how we can use the method of PPT relaxations to compute an upper bound on the maximum achievable fidelity of any entanglement distillation scheme using realistic operations.
 
-Let us first define a state to be distilled. In this example, let's consider the Werner state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).
+Let us first define a state to be distilled. In this example, let's consider the isotropic state. This state will be a mixture between the EPR pair (with probability 0.9), and the maximally mixed state (with probability 0.1).
 
 ```julia
 
-rho = wernerState(0.9);
+rho = isotropicState(0.9);
 
 ```
 
-Let's now go and compute the maximum fidelity of distillting a few of these Werner states.
+Let's now go and compute the maximum fidelity of distilling a few of these Werner states.
 
 ```julia
 

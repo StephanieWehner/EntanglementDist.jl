@@ -11,7 +11,7 @@ eps = 0.2;
 
 # Let's generate a test state to filter
 p = 0.7
-rho = p * maxEnt(2) + (1-p) * eVec(4,1)*eVec(4,1)';
+rho = sState(p);
 
 # Output initial fidelity
 Finit = entFidelity(rho);

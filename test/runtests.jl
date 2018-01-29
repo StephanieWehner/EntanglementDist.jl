@@ -2,7 +2,7 @@ using EntanglementDist
 using Base.Test
 
 @testset "Basic functions" begin
-	rho = wernerState(0.9)
+	rho = isotropicState(0.9)
 	A = [1 im; im 1]
 	@testset "Checks" begin
 		@test true == isQuantumState(rho)
@@ -11,11 +11,11 @@ using Base.Test
 		@test false == isHermitian(A)
 		@test false == isUnitary(A)
 		@test true == isPPT(eye(4)/4,2,2)
-		@test false == isPPT(wernerState(0.9),2,2)
+		@test false == isPPT(isotropicState(0.9),2,2)
 	end
 
 	@testset "Simple functions on states" begin
-		@test copies(wernerState(1),2) ≈ kron(maxEnt(2), maxEnt(2))
+		@test copies(isotropicState(1),2) ≈ kron(maxEnt(2), maxEnt(2))
 		@test entFidelity(sStateQutrit(1)) ≈ 1
 		@test eprFidelity(bellDiagState(0,0,0.3)) ≈ 0.7
 		@test eVec(2,1)*eVec(2,1)' + eVec(2,2)*eVec(2,2)' ≈ eye(2)
@@ -49,8 +49,8 @@ end
 	@test rStatePhase(0.8, pi) ≈ 0.8 * bell[4,1:4]*bell[4,1:4]' + 0.2 * kron(eVec(2,2),eVec(2,2))*kron(eVec(2,2),eVec(2,2))'
 	@test rStateCorrPhase(0, 0.8) ≈ eVec(16,16) * eVec(16,16)'
 	@test rStateCorrPhaseCopies(0, 3) ≈ eVec(64,64) * eVec(64,64)'
-	@test wernerState(1) ≈ maxEnt(2)
-	@test wernerState(0) ≈ eye(4)/4
+	@test isotropicState(1) ≈ maxEnt(2)
+	@test isotropicState(0) ≈ eye(4)/4
 	@test maxEnt(4)≈ maxEntVec(4)*maxEntVec(4)'
 	@test trace(bellDiagState(0.25,0.25,0.25)) ≈ 1
 	@test trace(maxEnt(4)) ≈ 1
@@ -71,33 +71,51 @@ end
 	@test DEJMPSParam(bellDiagState(0.4,0.3,0.1))[1] <= 0.5
 	@test BBPSSWParam(bellDiagState(0.4,0.3,0.1))[1] <= 0.5
 	@test BBPSSWParam(0.6)[1] > 0.6
-	#test EPL on rStateCorrPhase:
-	@test EPLParam(0.4,0.8)[1] ≈ EPLParam(sortAB(rStateCorrPhase(0.4,0.8),2,2))[1]
-	@test EPLParam(0.4,0.8)[2] ≈ EPLParam(sortAB(rStateCorrPhase(0.4,0.8),2,2))[2]
+	#test EPL-D on rStateCorrPhase:
+	@test EPLDParam(0.4,0.8)[1] ≈ EPLDParam(sortAB(rStateCorrPhase(0.4,0.8),2,2))[1]
+	@test EPLDParam(0.4,0.8)[2] ≈ EPLDParam(sortAB(rStateCorrPhase(0.4,0.8),2,2))[2]
+	#test the filtering protocol for a mixture of EPR pair and orthogonal product noise (rotated R-state). This protocol cannot deterministically increase fidelity:
+	X = [0 1; 1 0];
+	rho = kron(X, eye(2)) * rState(0.7) * kron(X, eye(2));
+	@test filtering(rho, 1)[3] ≈ eprFidelity(rho)
 end
 
 @testset "Relaxations" begin
-	# Test PPT Relax - no improvements should be possible when demanding success probability 1
-	rho = wernerState(0.9);
+	# Test PPT Relax - no improvements are possible when demanding success probability 1 on single copy of the isotropic state
+	rho = isotropicState(0.9);
 	initF = entFidelity(rho);
 	(problem,F,psucc) = pptRelax(rho,2,2,2,1, verbose = false);
 	@test round(F,3) == round(initF,3)
 
-	# Similarly, no improvement for 2 copies
-	rho = maxEnt(2);
+	# Test PPT Relax - DEJMPS overlaps with the PPT bound for Bell diagonal states of rank 2
+	rho = bellDiagState(0.7,0.3,0);
 	initF = entFidelity(rho);
-	(problem,F,psucc) = pptRelaxCopies(rho,2,2,2,2,1, verbose = false);
-	@test round(F,3) == round(initF,3)
+	(problem,F,psucc) = pptRelaxCopies(rho,2,2,2,2,DEJMPSParam(rho)[2], verbose = false);
+	dejmpsF = DEJMPSParam(rho)[1];
+	@test round(F,3) ≈ round(dejmpsF,3)
 
 	# Same for 1 extension
-	id = eye(2)
-	X = [0 1; 1 0];
-	rho = rState(0.9);
-	initF = entFidelity(kron(id, X) * rho * kron(id, X)');
-	(problem,F,psucc) = pptRelax1Ext(rho,2,2,2,1, verbose = false);
-	@test round(F,3) == round(initF,3)
+	rho = bellDiagState(0.7,0.3,0);
+	initF = entFidelity(rho);
+	(problem,F,psucc) = pptRelax1ExtCopies(rho,2,2,2,2,DEJMPSParam(rho)[2], verbose = false);
+	dejmpsF = DEJMPSParam(rho)[1];
+	@test round(F,3) ≈ round(dejmpsF,3)
 
-	# or even 2 extension
+	# Test 2 extensions - no improvements are possible when demanding success probability 1 on single copy of the isotropic state
+	rho = isotropicState(0.9);
+	initF = entFidelity(rho);
 	(problem,F,psucc) = pptRelax2Ext(rho,2,2,2,1, verbose = false);
 	@test round(F,3) == round(initF,3)
+end
+
+@testset "Seesaw" begin
+	
+	#Seesaw finds the optimal filtering protocol for S-states which overlaps with the PPT bound
+	rho = sState(0.7);
+	eps = 0.5;
+	(CA,CB) = filteringMakeChoi(eps);
+    (rhoQC, P, F0, p0) = filtering(rho, eps);
+    (newCA, newCB, Fnew, pnew) = seesaw(rho,2,2,2,CA, CB, P);
+	(problem,F,psucc) = pptRelax(rho,2,2,2,pnew, verbose = false);
+	@test round(F,3) ≈ round(Fnew,3)
 end

@@ -95,17 +95,19 @@ function pptRelax1Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	W_A2B = partialtrace(W_A1A2B, [1, 2], dims)
 
 	# define the objective
-	X =  Pcb' * nA * nB * kron( eye(k * nA), permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) ) * Pcb
+	X =  Pcb' * nA * nB * kron( eye(k * nA), permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], [k, k, nA, nB]) ) * Pcb
 	problem = maximize(trace(X[1:dimSym, 1:dimSym] * Ws))
 	problem.constraints += Ws in :SDP;
 
 	#Define probability of success
-	Y = Pcb' * nA * nB * kron( eye(k * nA), permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) ) * Pcb
+	Y = Pcb' * nA * nB * kron( eye(k * nA), permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], [k, k, nA, nB]) ) * Pcb
 	p_succ = trace(Y[1:dimSym, 1:dimSym] * Ws)
 
 	# define constraints
 	problem.constraints += [
-	eye(d)/d - partialtrace(W_A2B , [1, 3], [k, nA, k, nB]) ⪰ 0
+
+	eye(d)/d - partialtrace(W_A2B , [1, 3], [k, nA, k, nB]) in :SDP
+	eye(d)/d - ptranspose(partialtrace(W_A2B , [1, 3], [k, nA, k, nB])) in :SDP
 
 	# constrain probability of success
 	p_succ == delta
@@ -118,7 +120,7 @@ function pptRelax1Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	solve!(problem, SCSSolver(verbose = verbose, eps = eps))
 
 	# Output
-	Psuccess = nA * nB * trace(permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * partialtrace(Pcb * dirsum(Ws.value, Wa) * Pcb', [1, 2], dims))
+	Psuccess = nA * nB * trace(permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], [k, k, nA, nB]) * partialtrace(Pcb * dirsum(Ws.value, Wa) * Pcb', [1, 2], dims))
 	F = problem.optval/Psuccess
 	return (problem, F, Psuccess)
 end
@@ -201,7 +203,7 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	ms = k^4 * nA^3 * nB;
 		W_total= ComplexVariable(ms,ms);
 	end
-	
+
 
 	# output state
 	epr = maxEnt(k);
@@ -224,16 +226,17 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	# define the objective
 	tv = Variable(1);
 	problem = maximize(tv);
-	problem.constraints += tv == nA * nB * trace(permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B);
+	problem.constraints += tv == nA * nB * trace(permutesystems(kron(epr, transpose(rho)), [1, 3, 2, 4], [k, k, nA, nB]) * W_A1B);
 	problem.constraints += W_total in :SDP;
 
 	# define constraints
 	problem.constraints += [
 		eye(d)/d - partialtrace(W_A1B , [1, 3], [k, nA, k, nB]) in :SDP
+		eye(d)/d - ptranspose(partialtrace(W_A1B , [1, 3], [k, nA, k, nB])) in :SDP
 
 		# constrain probability of success
-		nA * nB * trace(permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * W_A1B) == delta
-		
+		nA * nB * trace(permutesystems(kron(eye(k^2), transpose(rho)), [1, 3, 2, 4], [k, k, nA, nB]) * W_A1B) == delta
+
 
 		# PPT condition
 		ptranspose(W_A1B) in :SDP
@@ -247,7 +250,7 @@ function pptRelax2Ext(rho::AbstractMatrix, nA::Number, nB::Number, k::Number, de
 	solve!(problem, SCSSolver(verbose = verbose, eps = eps))
 
 	# Output
-	Psuccess = nA * nB * trace(permutesystems(kron(eye(k^2),transpose(rho)), [1, 3, 2, 4], dim = [k, k, nA, nB]) * partialtrace(W_total.value, [3,4,5,6], dims))
+	Psuccess = nA * nB * trace(permutesystems(kron(eye(k^2),transpose(rho)), [1, 3, 2, 4], [k, k, nA, nB]) * partialtrace(W_total.value, [3,4,5,6], dims))
 	F = problem.optval/Psuccess
 	return (problem, F, Psuccess)
 end
@@ -284,7 +287,7 @@ Outputs:
 - *Pcb* the change of basis matrix
 """
 function getPcb(nA::Number, nB::Number, k::Number)
-  
+
 	#generate basis vectors on the k * nA dimensional system Ahat_i A'_i
 	v0 = spzeros(k * nA, 1)
 	v = Any[]

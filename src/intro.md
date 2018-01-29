@@ -27,7 +27,7 @@ directory.
 ## Basic functions
 Let's see how we can compute a bound on a basic filtering operation. First let us produce a state to be filtered:
 ```julia
-	rho = wernerState(0.9);
+	rho = isotropicState(0.9);
 	F = pptRelax(rho, 0.8);	
 end
 ```

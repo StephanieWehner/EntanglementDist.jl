@@ -1,13 +1,14 @@
+using EntanglementDist
+
 # Change the following to perform further tests:
 eps = 0.2;
 
 # rho = wernerState(0.9);
 # rho = rState(0.7);
 
-# Customized state: here the filtering is always better, but the seesaw
-# even better
+# Customized state:
 p = 0.7
-rho = p * maxEnt(2) + (1-p) * eVec(4,1)*eVec(4,1)';
+rho = sState(p);
 
 # Output initial fidelity
 Finit = entFidelity(rho);

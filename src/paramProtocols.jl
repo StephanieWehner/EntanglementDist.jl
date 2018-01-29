@@ -4,7 +4,7 @@
 export toBellBasis
 export BBPSSWParam
 export DEJMPSParam
-export EPLParam
+export EPLDParam
 
 import Base.convert
 convert(::Type{Float64}, x::Array{Float64,1}) = x[1]
@@ -79,22 +79,22 @@ function BBPSSWParam(rho::AbstractMatrix)
   return BBPSSWParam(F)
 end
 
-""" `(F, p_succ) = EPLParam(p, pd)`
+""" `(F, p_succ) = EPLDParam(p, pd)`
 
-Determines the performance of EPL for rStateCorrPhase.
+Determines the performance of EPL-D for rStateCorrPhase.
 The inputs are the *p* and *pd* parameters of rStateCorrPhase.
 returns (F_out, p_succ)
 """
-function EPLParam(p::Number, pd::Number)
+function EPLDParam(p::Number, pd::Number)
   return (pd, 0.5*p^2)
 end
 
-""" `(F, p_succ) = EPLParam(rho)`
+""" `(F, p_succ) = EPLDParam(rho)`
 
-Determines the performance of EPL for an arbitrary bipartite state of dimensions nA=nB=4.
+Determines the performance of EPL-D for an arbitrary bipartite state of dimensions nA=nB=4.
 returns (F_out, p_succ)
 """
-function EPLParam(rho::AbstractMatrix)
+function EPLDParam(rho::AbstractMatrix)
 
   #Define the CNOT operation:
   CNOT = [1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]

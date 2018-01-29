@@ -1,6 +1,6 @@
 # Defines some commonly used states in quantum information
 
-export bell, bellDiagState, wernerState, rState, sState, sStateQutrit, rStatePhase, rStateCorrPhase, rStateCorrPhaseCopies;
+export bell, bellDiagState, isotropicState, rState, sState, sStateQutrit, rStatePhase, rStateCorrPhase, rStateCorrPhaseCopies;
 
 """ `bell`
 
@@ -44,14 +44,12 @@ PA = bS4;
 Returns a bell diagonal state that is a mixture between the 4 Bell states: p1 * phi^+ + p2 * psi^+ + p3 * phi^- + (1 - p1 - p2 - p3) * psi^-.
 """
 
-function bellDiagState(p1::Number,p2::Number,p3::Number)
+function bellDiagState(p1::Number, p2::Number, p3::Number)
 
 	@assert 0 <= p1 "Probilities must be positive."
-	
 	@assert 0 <= p2 "Probilities must be positive."
-	
 	@assert 0 <= p3 "Probilities must be positive."
-	
+
 	@assert p1 + p2 + p3 <= 1 "Probabilities cannot exceed 1."
 
 	# Produce the desired mixture
@@ -82,29 +80,6 @@ function sState(p::Number)
 	return out;
 end
 
-""" `rho = rState(p)`
-
-Returns a state that is an a mixture between the EPR pair (with probability *p*), and the state |01><01|.
-"""
-
-function rState(p::Number)
-
-	@assert 0 <= p "Probilities must be positive."
-	@assert p <= 1 "Probabilities cannot exceed 1."
-
-	# Generate the maximally entangled state
-	epr = maxEnt(2);
-
-	# Generate |01>
-	e0 = [1 0];
-	e1 = [0 1];
-	v01 = kron(e0,e1);
-
-	# Produce the desired mixture
-	out = p * epr + (1-p) * v01'*v01;
-	return out;
-end
-
 """ `rho = sStateQutrit(p)`
 
 Returns a state that is a mixture between a 3 dimensional maximally entangled state (with probability *p*) and the state |00><00|
@@ -115,7 +90,7 @@ function sStateQutrit(p::Number)
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
 
-	# Maximally entangled state 
+	# Maximally entangled state
 	epr = maxEnt(3);
 
 	# Generate |00>
@@ -129,10 +104,12 @@ function sStateQutrit(p::Number)
   	return out;
 end
 
-#
-# Outputs a ronald state of the form p EPR + (1-p) |11><11|
-#
-# Inputs: p
+""" `rho = rState(p)`
+
+Returns a mixture between a state proportional to |01> + |10> (with probability *p*) and the state |11><11|.
+"""
+
+rState(p::Number) = rStatePhase(p, 0)
 
 """ `rho = rStatePhase(p, phi)` or `rho = rStatePhase(p)`
 
@@ -145,7 +122,7 @@ function rStatePhase(p::Number, phi::Number = 0.0)
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
 
-	# Produce the state |00> + e^(i phi) |11>
+	# Produce the state |01> + e^(i phi) |10>
 	e0 = eVec(2, 1);
 	e1 = eVec(2, 2);
 	vec = (kron(e0, e1) + e^(im*phi) * kron(e1,e0))/sqrt(2);
@@ -165,15 +142,15 @@ end
 
 """ `rho = rStateCorrPhase(p, pd)`
 
-Returns a state of the form integral phi [pd * r(p,phi) + (1-pd) * r(p,phi+pi)] tensor r(p,phi), where 
+Returns a state of the form integral phi [pd * r(p,phi) + (1-pd) * r(p,phi+pi)] tensor r(p,phi), where
 r(p,phi) = rStatePhase(p,phi). Default for pd is 1.
 """
-function rStateCorrPhase(p::Number, pd::Number=1)
+function rStateCorrPhase(p::Number, pd::Number = 1)
 
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
 
-	
+
     rStatePhaseDep(phi) = pd * rStatePhase(p, phi) + (1-pd) * rStatePhase(p, phi + pi)
 
 	integrand(phi) = ( 1/(2*pi) ) * kron(rStatePhaseDep(phi), rStatePhase(p, phi));
@@ -186,7 +163,7 @@ end
 
 """ `rho = rStateCorrPhaseCopies(p)`
 
-Returns a state of the form integral phi r(p,phi)^(tensor n) , where 
+Returns a state of the form integral phi r(p,phi)^(tensor n) , where
 r(p,phi) = rStatePhase(p,phi) and n is the number of desired copies.
 """
 function rStateCorrPhaseCopies(p::Number, n::Int)
@@ -202,21 +179,18 @@ function rStateCorrPhaseCopies(p::Number, n::Int)
   	return out
 end
 
-""" `rho = wernerState(p)` or `rho = wernerState(p,d)`
+""" `rho = isotropicState(p)` or `rho = isotropicState(p,d)`
 
-Returns a werner state, i.e., a mixture of a maximally entangled pair (with probability *p*) and the maximally mixed state in local dimension *d*. If no argument *d* is given the default is *d*=2, that is, we take the mixture of the EPR pair with the maximally mixed state of local dimension 2.
+Returns an isotropic state, i.e., a mixture of a maximally entangled pair (with probability *p*) and the maximally mixed state in local dimension *d*. If no argument *d* is given the default is *d*=2, that is, we take the mixture of the EPR pair with the maximally mixed state of local dimension 2.
 """
 
-function wernerState(p::Number; d::Int = 2)
+function isotropicState(p::Number; d::Int = 2)
 
 	@assert 0 <= p "Probilities must be positive."
 	@assert p <= 1 "Probabilities cannot exceed 1."
 
         epr = maxEnt(d);
 	out = p * epr*epr' + (1-p) * eye(d^2)/d^2;
-		
+
 	return out;
 end
-
-
-

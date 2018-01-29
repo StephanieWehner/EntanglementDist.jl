@@ -1,4 +1,4 @@
-# Perform a seesaw optimization searching for a good distillation scheme 
+# Perform a seesaw optimization searching for a good distillation scheme
 # in the vicinity of a known one
 
 using Convex
@@ -6,16 +6,16 @@ using SCS
 
 export seesaw, seesawAlice, seesawBob;
 
-""" 
+"""
 `(CA,CB, F, psucc) = seesaw(rhoAB, nA, nB, k, startCA, startCB)` or
 `(CA,CB, F, psucc) = seesaw(rhoAB, nA, nB, k, startCA, startCB, P)` or
 `(CA,CB, F, psucc) = seesaw(rhoAB, nA, nB, k, startCA, startCB, P, max_iter)` or
 `(CA,CB, F, psucc) = seesaw(rhoAB, nA, nB, k, startCA, startCB, P, max_iter, delta)`
 
-Performs a seesaw optimization searching for a good scheme to distill *rhoAB* 
+Performs a seesaw optimization searching for a good scheme to distill *rhoAB*
 into a maximally entangled state of local dimension *k*. Good here means that we want to maximize the fidelity of the output state to the maximally entangled state, where the success probability should not fall below the existing one - or, if supplied, not below the minimum success probability *delta*.
 
-Alice's map is assumed to be from 
+Alice's map is assumed to be from
 A -> hatA, F_A, and Bob's from B -> hatB, F_B, where F_A and F_B are the flag registered that yield success or failure. After the map *P* is measured on the flag registeres to determine success where *P* is the projector determining success. Example P=|11><11| on the flag registers F_A and F_B.
 
 Input:
@@ -27,7 +27,7 @@ Input:
 - *startCB* choi state of Bob's map to start from (ordering of systems: hatB (output state), F_B (flag register), B (input))
 - *P* (optional) projector onto success: Default is |11><11|
 - *max_iter* (optional) maximum number of iterations (default 10)
-- *delta* (optional) minimum acceptable success probability. 
+- *delta* (optional) minimum acceptable success probability.
 
 Output
 - *CA* new map for Alice as choi state
@@ -37,11 +37,11 @@ Output
 """
 
 function seesaw(
-	rho::AbstractMatrix, 
-	nA::Int, nB::Int, k::Int, 
-	startCA::AbstractMatrix, startCB::AbstractMatrix, 
-	P::AbstractMatrix = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 1], 
-	max_iter::Number=10, 
+	rho::AbstractMatrix,
+	nA::Int, nB::Int, k::Int,
+	startCA::AbstractMatrix, startCB::AbstractMatrix,
+	P::AbstractMatrix = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 1],
+	max_iter::Number=10,
 	delta::Number=0)
 
 	# Validate the essential elements of the input
@@ -59,12 +59,12 @@ function seesaw(
 	dimSys = [k, k, 2, 2, nA, nB];
 
 	# The current probability of success
-        M = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dim=dimSys);	
+				M = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dimSys);
 	psuccOrig = nA * nB * trace(M * kron(startCA, startCB));
 	bestP = psuccOrig;
-	
+
 	# The current fidelity achieved
-        M = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dim=dimSys);	
+				M = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dimSys);
 	FOrig = nA * nB * trace(M * kron(startCA, startCB))/psuccOrig;
 	bestF = FOrig;
 
@@ -79,12 +79,12 @@ function seesaw(
 		# Delte is not supplied: we don't want to get worse than before!
 		fixedSucc = psuccOrig;
 	end
-		
+
 
 	# Iteration to search for a better scheme
 	currCA = startCA;
 	currCB = startCB;
-	
+
 	for j = 1:max_iter
 
 		# A flag whether we achieved an improvement on either sie
@@ -118,11 +118,11 @@ function seesaw(
 		# Check whether any improvement was achieved. Otherwise just return
 		if !(betterA || betterB)
 			print("\nStopping early after ",j," iterations.\n");
-			print("Final fidelity F=",round(bestF,3), " and psucc=", round(bestP,3),"\n");	
+			print("Final fidelity F=",round(bestF,3), " and psucc=", round(bestP,3),"\n");
 			return(currCA, currCB, bestF, bestP);
 		end
 	end
-	print("\nFinal fidelity F=",round(bestF,3), " and psucc=", round(bestP,3),"\n");	
+	print("\nFinal fidelity F=",round(bestF,3), " and psucc=", round(bestP,3),"\n");
 
 	return(currCA, currCB, bestF, bestP);
 end
@@ -147,9 +147,9 @@ Output:
 """
 
 function seesawAlice(
-	rho::AbstractMatrix, 
-	nA::Int, nB::Int, k::Int, 
-	CB::AbstractMatrix, 
+	rho::AbstractMatrix,
+	nA::Int, nB::Int, k::Int,
+	CB::AbstractMatrix,
 	P::AbstractMatrix,
 	fixedSucc::Number)
 
@@ -171,21 +171,21 @@ function seesawAlice(
 
 	# Set up the optimization problem
 	# The current probability of success
-        Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dim=dimSys);	
+				Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dimSys);
 	tv = Variable(1);
 	problem = maximize(tv);
 	problem.constraints += tv == nA * nB * trace(Mwant * kron(CA, CB));
 	problem.constraints += CA in :SDP;
 
 	# Constraints
-	# CA should be a choi state 	
+	# CA should be a choi state
 	problem.constraints += ([trace(CA) == 1]);
 
 	CAin = partialtrace(CA,[1],[2 * k, nA]);
 	problem.constraints += ([CAin == eye(nA)/nA]);
 
 	# We want a lower bound on the success probability
-        Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dim=dimSys);	
+				Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dimSys);
 	problem.constraints += ([nA * nB * trace(Mid * kron(CA, CB)) == fixedSucc]);
 
 	# Solve the SDP
@@ -193,7 +193,7 @@ function seesawAlice(
 
 	# Compute the new success probability
 	psuccNew = nA * nB * trace(Mid * kron(CA.value, CB));
-	
+
 	# The current fidelity achieved
 	Fnew = nA * nB * trace(Mwant * kron(CA.value, CB))/psuccNew;
 
@@ -223,9 +223,9 @@ Output:
 """
 
 function seesawBob(
-	rho::AbstractMatrix, 
-	nA::Int, nB::Int, k::Int, 
-	CA::AbstractMatrix, 
+	rho::AbstractMatrix,
+	nA::Int, nB::Int, k::Int,
+	CA::AbstractMatrix,
 	P::AbstractMatrix,
 	fixedSucc::Number)
 
@@ -247,21 +247,21 @@ function seesawBob(
 
 	# Set up the optimization problem
 	# The current probability of success
-        Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dim=dimSys);	
+	Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dimSys);
 	tv = Variable(1);
 	problem = maximize(tv);
 	problem.constraints += tv == nA * nB * trace(Mwant * kron(CA, CB));
 	problem.constraints += CB in :SDP;
 
 	# Constraints
-	# CA should be a choi state 	
+	# CA should be a choi state
 	problem.constraints += ([trace(CB) == 1]);
 
 	CBin = partialtrace(CB,[1],[2 * k, nB]);
 	problem.constraints += ([CBin == eye(nA)/nA]);
 
 	# We want a lower bound on the success probability
-        Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dim=dimSys);	
+	Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dimSys);
 	problem.constraints += ([nA * nB * trace(Mid * kron(CA, CB)) == fixedSucc]);
 
 	# Solve the SDP
@@ -269,10 +269,9 @@ function seesawBob(
 
 	# Compute the new success probability
 	psuccNew = nA * nB * trace(Mid * kron(CA, CB.value));
-	
+
 	# The current fidelity achieved
 	Fnew = nA * nB * trace(Mwant * kron(CA, CB.value))/psuccNew;
 
 	return(CB.value, Fnew, psuccNew);
 end
-

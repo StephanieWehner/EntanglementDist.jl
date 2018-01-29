@@ -4,7 +4,7 @@ export sortAB
 
 """ `rhoSorted = sortAB(rhoBig, d, n)`
 
-Given a state of the form rhoBig = rhoAB^(tensor n), rearrange, so all A parts are first, followed by all B parts. *d* is the dimension of A, assumed to be the same as for B. *n* is the number of copies. 
+Given a state of the form rhoBig = rhoAB^(tensor n), rearrange, so all A parts are first, followed by all B parts. *d* is the dimension of A, assumed to be the same as for B. *n* is the number of copies.
 """
 
 function sortAB(rhoBig::AbstractMatrix, d::Int, n::Int)
@@ -16,7 +16,7 @@ function sortAB(rhoBig::AbstractMatrix, d::Int, n::Int)
 	@assert d1 == (d^2)^n "Input dimensions don't match."
 
 
-	rhoOut = permutesystems(rhoBig, [collect(0:2:2(n - 1)) + 1; collect(2:2:2n)], dim = fill(d, 2n)) 	
+	rhoOut = permutesystems(rhoBig, [collect(0:2:2(n - 1)) + 1; collect(2:2:2n)], fill(d, 2n)) 	
 
 	return rhoOut;
 end

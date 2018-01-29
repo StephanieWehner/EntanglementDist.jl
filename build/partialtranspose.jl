@@ -109,10 +109,9 @@ function partialtransposesystem(ρ::Union{AbstractArray, AbstractExpr}, sys::Int
   push!(perm, sys)
 
   l = dim[sys]
-  x = permutesystems(ρ, perm, dim = dim)
+  x = permutesystems(ρ, perm, dim)
   y = partialtransposenaive(x, l)
-	#print("OK\n");	
-  z = permutesystems(y, perm, dim = dim)
+  z = permutesystems(y, perm, dim)
   return z
 end
 
