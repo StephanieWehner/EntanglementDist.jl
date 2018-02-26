@@ -9,6 +9,7 @@
 This package implements the schemes for optimizing entanglement distillation from arXiv:...
 
 ## Installation
+The package has been tested on Julia v0.5.
 
 Install the code of this package using: 
 ```julia

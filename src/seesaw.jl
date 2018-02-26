@@ -174,7 +174,7 @@ function seesawAlice(
 				Mwant = permutesystems(kron(kron(want,P),rho'), [1,3,5,2,4,6], dimSys);
 	tv = Variable(1);
 	problem = maximize(tv);
-	problem.constraints += tv == nA * nB * trace(Mwant * kron2(CA, CB));
+	problem.constraints += tv == nA * nB * trace(Mwant * simplekron(CA, CB));
 	problem.constraints += CA in :SDP;
 
 	# Constraints
@@ -186,7 +186,7 @@ function seesawAlice(
 
 	# We want a lower bound on the success probability
 				Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dimSys);
-	problem.constraints += ([nA * nB * trace(Mid * kron2(CA, CB)) == fixedSucc]);
+	problem.constraints += ([nA * nB * trace(Mid * simplekron(CA, CB)) == fixedSucc]);
 
 	# Solve the SDP
 	solve!(problem, SCSSolver(verbose=false));

@@ -1,6 +1,4 @@
 julia 0.5
 Convex
 SCS
-Gadfly
-Cairo
-Fontconfig
+
