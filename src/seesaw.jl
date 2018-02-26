@@ -27,7 +27,7 @@ Input:
 - *startCB* choi state of Bob's map to start from (ordering of systems: hatB (output state), F_B (flag register), B (input))
 - *P* (optional) projector onto success: Default is |11><11|
 - *max_iter* (optional) maximum number of iterations (default 10)
-- *delta* (optional) desired success probability if different from the starting map.
+- *delta* (optional) desired success probability if different from that of the starting map.
 
 Output
 - *CA* new map for Alice as choi state
