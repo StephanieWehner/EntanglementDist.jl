@@ -13,7 +13,7 @@ export seesaw, seesawAlice, seesawBob;
 `(CA,CB, F, psucc) = seesaw(rhoAB, nA, nB, k, startCA, startCB, P, max_iter, delta)`
 
 Performs a seesaw optimization searching for a good scheme to distill *rhoAB*
-into a maximally entangled state of local dimension *k*. Good here means that we want to maximize the fidelity of the output state to the maximally entangled state, where the success probability should not fall below the existing one - or, if supplied, not below the minimum success probability *delta*.
+into a maximally entangled state of local dimension *k*. Good here means that we want to maximize the fidelity of the output state to the maximally entangled state, where the success probability should be the same as the existing one - or, if supplied, it should achieve a specific success probability *delta*.
 
 Alice's map is assumed to be from
 A -> hatA, F_A, and Bob's from B -> hatB, F_B, where F_A and F_B are the flag registered that yield success or failure. After the map *P* is measured on the flag registeres to determine success where *P* is the projector determining success. Example P=|11><11| on the flag registers F_A and F_B.
@@ -27,7 +27,7 @@ Input:
 - *startCB* choi state of Bob's map to start from (ordering of systems: hatB (output state), F_B (flag register), B (input))
 - *P* (optional) projector onto success: Default is |11><11|
 - *max_iter* (optional) maximum number of iterations (default 10)
-- *delta* (optional) minimum acceptable success probability.
+- *delta* (optional) desired success probability if different from the starting map.
 
 Output
 - *CA* new map for Alice as choi state
@@ -71,12 +71,12 @@ function seesaw(
 	print("\n\nSEESAW Optimization\n\n");
 	print("Starting with fidelity F=",round(FOrig,3), " and p_succ=", round(psuccOrig,3),"\n\n");
 
-	# Set the minimum acceptable probability of success
+	# Set the desired probability of success
 	if delta > 0
-		# Non zero delta is supplied: make that the minimum acceptable succes probability
+		# Desired delta is supplied: make that the desired acceptable succes probability
 		fixedSucc = delta;
 	else
-		# Delte is not supplied: we don't want to get worse than before!
+		# Delte is not supplied: we want to keep the success probability of the starting scheme
 		fixedSucc = psuccOrig;
 	end
 
@@ -87,7 +87,7 @@ function seesaw(
 
 	for j = 1:max_iter
 
-		# A flag whether we achieved an improvement on either sie
+		# A flag whether we achieved an improvement on either side
 		betterA = false;
 		betterB = false;
 
@@ -95,7 +95,7 @@ function seesaw(
 		(newCA, FA, psuccA) = seesawAlice(rho, nA, nB, k, currCB, P, fixedSucc);
 
 		if (FA > bestF)
-			# We improved the fidelity while maintaining the minimum acceptable success prob.
+			# We improved the fidelity while achieving the desired success prob.
 			# Update Alice's map
 			currCA = newCA;
 			betterA = true;
@@ -107,7 +107,7 @@ function seesaw(
 		(newCB, FB, psuccB) = seesawBob(rho, nA, nB, k, currCA, P, fixedSucc);
 
 		if (FB > bestF)
-			# We improved the fidelity while maintaining the minimum acceptable success prob.
+			# We improved the fidelity while maintaining the desired success prob.
 			# Update Bob's map
 			currCB = newCB;
 			betterB = true;
@@ -129,7 +129,7 @@ end
 
 """ `(newCA, FA, psuccA) = seesawAlice(rhoAB, nA, nB, k, CB, P, fixedSucc)`
 
-Searches for a better distillation map for Alice, optimizing the product of the fidelity and success probability, for a lower bound on the desired success probability. Called from seesaw.
+Searches for a better distillation map for Alice, optimizing the product of the fidelity and success probability, for a fixed desired success probability. Called from seesaw.
 
 Input (assumed to be valid):
 - *rhoAB* state to be distilled
@@ -138,7 +138,7 @@ Input (assumed to be valid):
 - *k* local dimension of desired max. entangled state
 - *CB* choi state of Bob's map
 - *P* measurement indicating success
-- *fixedSucc * desired probability of succes
+- *fixedSucc * desired probability of success
 
 Output:
 - *newCA* new map for Alice as choi state
@@ -184,7 +184,7 @@ function seesawAlice(
 	CAin = partialtrace(CA,[1],[2 * k, nA]);
 	problem.constraints += ([CAin == eye(nA)/nA]);
 
-	# We want a lower bound on the success probability
+	# We want a fixed success probability
 				Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dimSys);
 	problem.constraints += ([nA * nB * trace(Mid * simplekron(CA, CB)) == fixedSucc]);
 
@@ -205,7 +205,7 @@ end
 
 """ `(newCB, FB, psuccB) = seesawBob(rhoAB, nA, nB, k, CA, P, fixedSucc)`
 
-Searches for a better distillation map for Bob, optimizing the product of the fidelity and success probability, for a lower bound on the desired success probability. Called from seesaw.
+Searches for a better distillation map for Bob, optimizing the product of the fidelity and success probability, for a fixed desired success probability. Called from seesaw.
 
 Input (assumed to be valid):
 - *rhoAB* state to be distilled
@@ -214,7 +214,7 @@ Input (assumed to be valid):
 - *k* local dimension of desired max. entangled state
 - *CA* choi state of Alice's map
 - *P* measurement indicating success
-- *fixedSucc* desired probability of succes
+- *fixedSucc* desired probability of success
 
 Output:
 - *newCB* new map for Bob as choi state
@@ -260,7 +260,7 @@ function seesawBob(
 	CBin = partialtrace(CB,[1],[2 * k, nB]);
 	problem.constraints += ([CBin == eye(nA)/nA]);
 
-	# We want a lower bound on the success probability
+	# We want a fixed success probability
 	Mid = permutesystems(kron(kron(eye(k^2),P),rho'), [1,3,5,2,4,6], dimSys);
 	problem.constraints += ([nA * nB * trace(Mid * kron(CA, CB)) == fixedSucc]);
 
