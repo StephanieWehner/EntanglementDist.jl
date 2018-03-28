@@ -6,7 +6,7 @@
 
 [![codecov.io](http://codecov.io/github/StephanieWehner/EntanglementDist.jl/coverage.svg?branch=master)](http://codecov.io/github/StephanieWehner/EntanglementDist.jl?branch=master)
 
-This package implements the schemes for optimizing entanglement distillation from arXiv:...
+This package implements the schemes for optimizing entanglement distillation from arXiv:1803.10111
 
 ## Installation
 The package has been tested on Julia v0.5.
