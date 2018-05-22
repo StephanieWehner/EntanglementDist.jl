@@ -1,18 +1,11 @@
 # Introduction
 ## Installation
 
-First, you need the latest version of Convex which is not yet available 
-via Pkg.add. The new version of Convex.jl can handle complex matrices, which we will need. If you have a previously installed version remove it (Pkg.rm) and then install the most recent one by doing:
+The package has been tested on Julia v0.5.
 
+Install the code of this package using: 
 ```julia
-Pkg.clone("https://github.com/JuliaOpt/Convex.jl.git")
-```
-
-If you have loaded Convex, a restart of Julia is required before you can use the new package.
-
-Second, you want to install the code of this package itself. 
-```julia
-Pkg.add("EntanglementDist")
+Pkg.clone("https://github.com/StephanieWehner/EntanglementDist.jl.git")
 ```
 
 In the usual way, you can now start using the package:
@@ -31,7 +24,7 @@ Let's see how we can compute a bound on a basic filtering operation. First let u
 	F = pptRelax(rho, 0.8);	
 end
 ```
-We then run the PPT relaxation to find an upper bound on the fidelity achievable using realistic operations, when trying to obtain an EPR pair with probability of success 0.9.
+We then run the PPT relaxation to find an upper bound on the fidelity achievable using measure and exchange operations, when trying to obtain an EPR pair with probability of success 0.9.
 ```julia
 
 # Dimensions of the input state (i.e. what is Alice and Bob in rho)

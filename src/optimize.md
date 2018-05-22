@@ -1,6 +1,6 @@
 # Tools for optimizing distillation
 
-The following functions implement the various methods to optimize entanglement distillation described in arXiv:XXX. 
+The following functions implement the various methods to optimize entanglement distillation described in arXiv:1803.10111. 
 
 ```@docs
 pptRelax

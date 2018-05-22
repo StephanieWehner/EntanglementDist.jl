@@ -1,6 +1,6 @@
 # Using the seesaw method
 
-Remember from arXiv:... that the seesaw method attempts to find a better entanglement distillation scheme for a given state, starting with an existing protocol. Below, we will apply this method to improve a simple filtering scheme that takes one 2x2 quantum state, and returns another 2x2 quantum state with higher fidelity to the EPR pair - at least with some probability of success. 
+Remember from arXiv:1803.10111 that the seesaw method attempts to find a better entanglement distillation scheme for a given state, starting with an existing protocol. Below, we will apply this method to improve a simple filtering scheme that takes one 2x2 quantum state, and returns another 2x2 quantum state with higher fidelity to the EPR pair - at least with some probability of success. 
 
 To use the seesaw method, the existing entanglement distillation scheme must be supplied in terms of the relevant choi states for Alice and Bob. The scheme is therby formulated as a map that takes Alice's system A to an output hat A and a flag register F_A, and similarly for Bob. A projector P must be supplied which is applied to the flag register that Alice and Bob will use to decide success. For example, P=|11><11| would correspond to a protocol in which Alice and Bob declare success if each of them locally declared success corresponding to a flag of 1. 
 

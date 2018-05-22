@@ -1,4 +1,4 @@
-# Implements the method of PPT relaxations of RO operations
+# Implements the method of PPT relaxations of MX operations
 
 using Convex
 using SCS
@@ -7,7 +7,7 @@ export pptRelax, pptRelaxCopies;
 
 """ `(problem, F, p_succ) = pptRelax(rho,n,k,delta, verbose, eps, max_iters)`
 
-Implements the PPT relaxation computing an upper bound on the fidelity achievable using realistic operations for a given input state and fixed succes probability.
+Implements the PPT relaxation computing an upper bound on the fidelity achievable using measure and exchange operations for a given input state and fixed succes probability.
 
 Inputs:
 - *rho* quantum state to be distilled
@@ -34,7 +34,7 @@ end
 
 """ `(problem, F, p_succ) = pptRelax(rho,nA, nB, k,delta, verbose, eps, max_iters)`
 
-Implements the PPT relaxation computing an upper bound on the fidelity achievable using realistic operations for a given input state and fixed succes probability.
+Implements the PPT relaxation computing an upper bound on the fidelity achievable using measure and exchange operations for a given input state and fixed succes probability.
 
 Inputs:
 - *rho* quantum state to be distilled on A and B

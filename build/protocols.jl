@@ -19,8 +19,8 @@ Input:
 - *eps* filtering parameter, smaller eps typically means higher fidelity but lower probability of success
 
 Output:
-- *rhoQC* filtered state with flags: Q=hatA, hatB contains the output state, C  F_A,F_B contains the flags (1 success, 0 failure)
-- *P* projector specifying how Alice and Bob determine success |11><11|, both succeed
+- *rhoQC* filtered state with flags: Q=hatA, hatB contains the output state, C=F_A,F_B contains the flags (1 success, 0 failure)
+- *P* projector specifying the global success condition on the flags; for this scheme it is given by |11><11|
 - *F* fidelity achieved for the given input state
 - *psucc* probability of success
 """
